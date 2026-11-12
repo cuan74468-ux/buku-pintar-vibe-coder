@@ -51,19 +51,21 @@
   function bookCard(book){
     const article=node('article','library-book');
     article.dataset.bookId=book.id;
-    const cover=anchor(book.detailUrl,'','library-cover');
-    cover.setAttribute('aria-label','Lihat '+book.title);
+    const mainUrl=book.detailUrl||book.downloads.pdf||book.downloads.epub;
+    const directDownload=!book.detailUrl;
+    const cover=anchor(mainUrl,'','library-cover',directDownload);
+    cover.setAttribute('aria-label',(directDownload?'Unduh ':'Lihat ')+book.title);
     const img=node('img');
     img.src=book.cover;img.loading='lazy';img.alt='Sampul '+book.title;
     cover.append(img,node('span','book-cover-tag','GRATIS · TERSEDIA'));
     const body=node('div','library-book-content');
     body.append(node('span','book-category',book.category+' / '+book.edition));
     const h3=node('h3');
-    h3.append(anchor(book.detailUrl,book.title));
+    h3.append(anchor(mainUrl,book.title,'',directDownload));
     body.append(h3,node('p','',book.subtitle));
     body.append(node('div','book-byline','Oleh '+book.author+' · '+niceDate(book.publishedAt)));
     const links=node('div','book-links');
-    links.append(anchor(book.detailUrl,'Lihat buku ↗','book-details'));
+    links.append(anchor(mainUrl,book.detailUrl?'Lihat buku ↗':'Unduh buku ↓','book-details',directDownload));
     if(book.downloads.pdf)links.append(anchor(book.downloads.pdf,'PDF ↓','',true));
     if(book.downloads.epub)links.append(anchor(book.downloads.epub,'EPUB ↓','',true));
     body.append(links);
@@ -81,8 +83,8 @@
         if(typeof book[key]!=='string'||!book[key].trim())throw Error('Data '+key+' tidak lengkap.');
       }
       if(!iso.test(book.publishedAt)||!Number.isFinite(new Date(book.publishedAt+'T00:00:00Z').getTime()))throw Error('Tanggal terbit tidak valid.');
-      const cover=safeFile(book.cover),detailUrl=safeFile(book.detailUrl);
-      if(!cover||!/\.(?:png|jpg|jpeg|webp|svg)$/i.test(cover)||!detailUrl||!detailUrl.endsWith('.html'))throw Error('Path sampul atau halaman buku tidak valid.');
+      const cover=safeFile(book.cover),detailUrl=book.detailUrl?safeFile(book.detailUrl):'';
+      if(!cover||!/\.(?:png|jpg|jpeg|webp|svg)$/i.test(cover)||(book.detailUrl&&(!detailUrl||!detailUrl.endsWith('.html'))))throw Error('Path sampul atau halaman buku tidak valid.');
       if(!book.downloads||typeof book.downloads!=='object')throw Error('File unduhan belum ditetapkan.');
       const pdf=book.downloads.pdf?safeFile(book.downloads.pdf):'';
       const epub=book.downloads.epub?safeFile(book.downloads.epub):'';
