@@ -72,6 +72,41 @@
     article.append(cover,body);
     return article;
   }
+  function featuredBook(book){
+    if(!book)return;
+    const href=book.detailUrl||book.downloads.pdf||book.downloads.epub;
+    const linked=['#featuredCoverLink','#featuredOpenLink'];
+    for(const selector of linked){
+      const a=$(selector);
+      if(!a)continue;
+      a.href=href;
+      a.setAttribute('aria-label',(book.detailUrl?'Lihat buku ':'Unduh buku ')+book.title);
+      if(book.detailUrl)a.removeAttribute('download');
+      else a.setAttribute('download','');
+    }
+    const img=$('#featuredCover');
+    if(img){img.src=book.cover;img.alt='Sampul '+book.title;}
+    const title=$('#featuredTitle');
+    if(title)title.textContent=book.title;
+    const meta=$('#featuredMeta');
+    if(meta)meta.textContent=book.author+' · '+book.edition+' · Gratis';
+    const edition=$('#featuredEdition');
+    if(edition)edition.textContent=book.edition.toUpperCase();
+    const kicker=$('#featuredKicker');
+    if(kicker)kicker.textContent='BUKU TERBARU';
+  }
+  function upcomingNotice(books,today){
+    const upcoming=books.filter(b=>b.status==='scheduled'&&b.publishedAt>=today)
+      .sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt))[0];
+    const title=$('#comingTitle'),text=$('#comingText');
+    if(upcoming){
+      if(title)title.textContent=upcoming.title;
+      if(text)text.textContent='Direncanakan terbit '+niceDate(upcoming.publishedAt)+'. Jadwal bisa berubah; tautan unduh hanya akan aktif setelah buku benar-benar dirilis.';
+    }else{
+      if(title)title.textContent='Rak ini belum selesai.';
+      if(text)text.textContent='Judul berikutnya belum diumumkan. Ketika siap dibagikan, sampul, penjelasan, dan tautan unduhnya akan ditambahkan di sini.';
+    }
+  }
   function validate(data){
     if(!data||data.schemaVersion!==1||!Array.isArray(data.books))throw Error('Format katalog tidak sesuai.');
     const ids=new Set();
@@ -147,6 +182,8 @@
       const published=books.filter(b=>b.status==='published'&&b.publishedAt<=today)
         .sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt)||a.title.localeCompare(b.title,'id'));
       render(published);
+      featuredBook(published[0]);
+      upcomingNotice(books,today);
       if(search){
         toolbar.hidden=published.length<4;
         search.addEventListener('input',()=>render(published,search.value));
