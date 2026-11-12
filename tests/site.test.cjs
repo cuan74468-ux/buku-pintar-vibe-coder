@@ -73,6 +73,9 @@ test('home uses unique landmarks, readable week status, and no fake subscribe fo
   assert(home.includes('Tidak ada jadwal terbit rutin yang dijanjikan'));
   assert(!home.includes('type="email"')&&!home.includes('Daftar untuk notifikasi'));
   assert(home.includes('feed.xml')&&home.includes('data/books.json')===false);
+  for(const id of ['featuredCover','featuredCoverLink','featuredTitle','featuredOpenLink','comingTitle','comingText'])assert(home.includes('id="'+id+'"'),'Missing catalog-driven frontpage element '+id);
+  assert(libraryJS.includes('featuredBook(published[0])')&&libraryJS.includes('upcomingNotice(books,today)'));
+
 });
 
 test('weekly date boundaries follow Monday to Sunday, Jakarta local dates',()=>{
@@ -99,6 +102,9 @@ test('weekly date boundaries follow Monday to Sunday, Jakarta local dates',()=>{
   const drafted={...thisWeek,id:'draft-buku',status:'draft'};
   api.weeklyAnnouncement([book,drafted],catalog.lastUpdated,'2026-11-12');
   assert.match(nodes.get('#weekStatus').textContent,/Belum ada eBook baru/);
+  const scheduled={...thisWeek,id:'scheduled-buku',publishedAt:'2026-11-14',status:'scheduled'};
+  api.weeklyAnnouncement([book,scheduled],catalog.lastUpdated,'2026-11-12');
+  assert.match(nodes.get('#weekStatus').textContent,/dijadwalkan terbit pekan ini/);
   const valid=api.validate(catalog);
   assert.equal(valid.books.length,1);
   assert.throws(()=>api.validate({...catalog,books:[book,{...book}]}),/duplikat/);
