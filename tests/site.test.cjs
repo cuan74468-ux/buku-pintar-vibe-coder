@@ -14,7 +14,7 @@ test('real first book, PDF EPUB and cover are intact',()=>{
     assert(fs.existsSync(path.join(root,name)),name+' should exist');
   }
   for(const name of ['Buku_Pintar_Vibe_Coder_Edisi1.pdf','Buku_Pintar_Vibe_Coder_Edisi1.epub']){
-    assert(detail.match(new RegExp(name.replace(/\./g,'\\.')+'"\" download','g')).length>=2);
+    assert(detail.split('href="'+name+'" download').length-1>=2);
     assert(home.includes(name),'The homepage must offer real downloads even without JS');
   }
   assert(home.includes('sampul.png')&&detail.includes('sampul.png'));
