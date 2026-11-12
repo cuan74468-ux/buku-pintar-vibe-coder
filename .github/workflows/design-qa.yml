@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'buku-pintar-vibe-coder-edisi-1.html'
+      - 'data/**'
+      - 'feed.xml'
       - 'css/**'
       - 'js/**'
       - 'tests/**'
@@ -27,6 +30,8 @@ jobs:
         with:
           node-version: '22'
       - name: Verify JavaScript syntax
-        run: node --check js/site.js
+        run: |
+          node --check js/site.js
+          node --check js/library.js
       - name: Test page integrity
         run: node --test tests/site.test.cjs
