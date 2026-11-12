@@ -177,6 +177,13 @@ img{max-width:100%;height:auto}
   .footer-inner{grid-template-columns:1fr;gap:12px}
 }
 @media(max-width:340px){.hero-actions,.download-actions{grid-template-columns:1fr}.hero h1{font-size:41px}}
+/* Reveals are progressively enhanced: content remains visible if JS is off. */
+@media(prefers-reduced-motion:no-preference){
+  [data-reveal].reveal-ready{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.25,1)}
+  [data-reveal].reveal-ready.reveal-visible{opacity:1;transform:translateY(0)}
+  .cover-stage.reveal-ready{transform:translateY(12px)}
+  .cover-stage.reveal-ready.reveal-visible{transform:translateY(0)}
+}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
   .cover-figure:hover,.button:hover{transform:none}
