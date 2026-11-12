@@ -1,0 +1,32 @@
+name: Design and ebook QA
+
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'css/**'
+      - 'js/**'
+      - 'tests/**'
+      - 'sampul.png'
+      - '*.pdf'
+      - '*.epub'
+      - '.github/workflows/design-qa.yml'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JavaScript syntax
+        run: node --check js/site.js
+      - name: Test page integrity
+        run: node --test tests/site.test.cjs
