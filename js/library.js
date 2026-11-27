@@ -59,7 +59,7 @@
     img.src=book.cover;img.loading='lazy';img.alt='Sampul '+book.title;
     cover.append(img,node('span','book-cover-tag','Gratis'));
     const body=node('div','library-book-content');
-    body.append(node('span','book-category',book.category+' / '+book.edition));
+    body.append(node('span','book-category',book.category));
     const h3=node('h3');
     h3.append(anchor(mainUrl,book.title,'',directDownload));
     body.append(h3,node('p','',book.subtitle));
@@ -90,7 +90,7 @@
     const title=$('#featuredTitle');
     if(title)title.textContent=book.title;
     const meta=$('#featuredMeta');
-    if(meta)meta.textContent=book.author+' · '+book.edition+' · Gratis';
+    if(meta)meta.textContent=book.author+' · Gratis';
     const edition=$('#featuredEdition');
     if(edition)edition.textContent=book.edition.toUpperCase();
     const kicker=$('#featuredKicker');

@@ -32,8 +32,8 @@ function clean(n,from){
  if(n.nodeType!==1)return document.createDocumentFragment();
  const tag=n.localName.toLowerCase();
  if(tag==='svg'){
-  const embedded=[...n.getElementsByTagNameNS('*','image')].find(img=>resolve(from,img.getAttribute('href')||img.getAttributeNS('http://www.w3.org/1999/xlink','href')||'')?.path==='EPUB/media/cover-01.png');
-  if(embedded){const cover=el('img');cover.src='sampul.png';cover.alt='Sampul Buku Pintar Vibe Coder';return cover;}
+  const embedded=[...n.getElementsByTagNameNS('*','image')].find(img=>resolve(from,img.getAttribute('href')||img.getAttributeNS('http://www.w3.org/1999/xlink','href')||'')?.path==='EPUB/media/cover.jpg');
+  if(embedded){const cover=el('img');cover.src='Dapur_Vibe_Coder_Sampul.jpg';cover.alt='Sampul Dapur Vibe Coder';return cover;}
   return document.createDocumentFragment();
  }
  if(['script','style','iframe','object','embed','form','input','button','svg','math','audio','video','link'].includes(tag))return document.createDocumentFragment();
@@ -41,7 +41,7 @@ function clean(n,from){
  if(out.nodeType===1){
   const id=n.getAttribute('id');if(id)out.id='book-'+id;
   if(tag==='img'){
-   const source=resolve(from,n.getAttribute('src')||'');if(source?.path==='EPUB/media/cover-01.png'){out.src='sampul.png';out.alt=n.getAttribute('alt')||'Sampul Buku Pintar Vibe Coder';return out;}
+   const source=resolve(from,n.getAttribute('src')||'');if(source?.path==='EPUB/media/cover.jpg'){out.src='Dapur_Vibe_Coder_Sampul.jpg';out.alt=n.getAttribute('alt')||'Sampul Dapur Vibe Coder';return out;}
    return document.createTextNode(n.getAttribute('alt')||'');
   }
   if(tag==='a'){
@@ -71,7 +71,7 @@ function doSearch(){
  for(const {c,i} of matches){const b=el('button',c.title);b.type='button';b.addEventListener('click',()=>show(i,'',true));results.append(b);}
 }
 async function load(){
- const r=await fetch('Buku_Pintar_Vibe_Coder_Edisi1.epub');if(!r.ok)throw Error('File buku tidak dapat dimuat.');
+ const r=await fetch('Dapur_Vibe_Coder.epub');if(!r.ok)throw Error('File buku tidak dapat dimuat.');
  const archive=zip(await r.arrayBuffer()),container=xml(await archive.read('META-INF/container.xml')),packagePath=[...container.getElementsByTagNameNS('*','rootfile')][0]?.getAttribute('full-path');
  if(!packagePath)throw Error('Paket EPUB tidak ditemukan.');
  const packageDoc=xml(await archive.read(packagePath)),manifest=new Map([...packageDoc.getElementsByTagNameNS('*','item')].map(n=>[n.getAttribute('id'),n.getAttribute('href')]));
@@ -89,5 +89,5 @@ select.addEventListener('change',()=>show(Number(select.value),'',true));search.
 $('prevChapter').addEventListener('click',()=>show(current-1,'',true));$('nextChapter').addEventListener('click',()=>show(current+1,'',true));
 content.addEventListener('click',e=>{const a=e.target.closest('a[data-chapter]');if(!a)return;e.preventDefault();show(Number(a.dataset.chapter),a.dataset.anchor,true);});
 for(const [id,delta] of [['fontMinus',-1],['fontPlus',1]])$(id).addEventListener('click',()=>{readingSize=Math.max(15,Math.min(26,readingSize+delta));document.documentElement.style.setProperty('--read-size',readingSize+'px');});
-load().catch(()=>{content.setAttribute('aria-busy','false');$('readerPosition').textContent='Pembaca tidak tersedia';content.replaceChildren(el('p','Pembaca online tidak dapat memuat buku pada perangkat ini. Gunakan file asli di bawah.'));const p=el('a','Buka PDF');p.href='Buku_Pintar_Vibe_Coder_Edisi1.pdf';const e=el('a','Unduh EPUB');e.href='Buku_Pintar_Vibe_Coder_Edisi1.epub';e.download='';content.append(p,el('p','atau'),e);});
+load().catch(()=>{content.setAttribute('aria-busy','false');$('readerPosition').textContent='Pembaca tidak tersedia';content.replaceChildren(el('p','Pembaca online tidak dapat memuat buku pada perangkat ini. Gunakan file asli di bawah.'));const p=el('a','Buka PDF');p.href='Dapur_Vibe_Coder.pdf';const e=el('a','Unduh EPUB');e.href='Dapur_Vibe_Coder.epub';e.download='';content.append(p,el('p','atau'),e);});
 })();
