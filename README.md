@@ -18,3 +18,7 @@ Rilis memerlukan pemeriksaan aset, unduhan, reader, tautan, CI dan Pages. Jangan
 ## Catatan pengelola
 
 Tanggal publikasi asli katalog dipertahankan, pembaruan metadata dicatat terpisah. Nomor versi teknis tidak ditampilkan kepada pembaca. Backup sumber lama tersedia di commit 3776a77.
+
+## Hak cipta dan distribusi
+
+Buku gratis untuk penggunaan pribadi. Lihat [ketentuan distribusi](HAK-CIPTA.md). Repository publik bukan pemberian lisensi komersial atas buku.
