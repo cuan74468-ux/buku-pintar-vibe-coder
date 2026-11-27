@@ -10,26 +10,20 @@ const css=read('css/site.css'),siteJS=read('js/site.js'),libraryJS=read('js/libr
 const catalog=JSON.parse(read('data/books.json')),rss=read('feed.xml');
 
 test('real first book, PDF EPUB and cover are intact',()=>{
-  for(const name of ['sampul.png','Buku_Pintar_Vibe_Coder_Edisi1.pdf','Buku_Pintar_Vibe_Coder_Edisi1.epub','css/site.css','js/site.js','js/library.js','data/books.json','feed.xml']){
+  for(const name of ['Dapur_Vibe_Coder_Mockup.jpg','Dapur_Vibe_Coder.pdf','Dapur_Vibe_Coder.epub','css/site.css','js/site.js','js/library.js','data/books.json','feed.xml']){
     assert(fs.existsSync(path.join(root,name)),name+' should exist');
   }
-  for(const name of ['Buku_Pintar_Vibe_Coder_Edisi1.pdf','Buku_Pintar_Vibe_Coder_Edisi1.epub']){
+  for(const name of ['Dapur_Vibe_Coder.pdf','Dapur_Vibe_Coder.epub']){
     assert(detail.split('href="'+name+'" download').length-1>=2);
     assert(home.includes(name),'The homepage must offer real downloads even without JS');
   }
-  assert(home.includes('sampul.png')&&detail.includes('sampul.png'));
+  assert(home.includes('Dapur_Vibe_Coder_Mockup.jpg')&&detail.includes('Dapur_Vibe_Coder_Mockup.jpg'));
   assert(home.includes('buku-pintar-vibe-coder-edisi-1.html'));
 });
 
-test('edition-one original editorial material is preserved on book detail page',()=>{
+test('Dapur Vibe Coder editorial content is aligned on detail page',()=>{
   for(const phrase of [
-    'Buku Pintar','Vibe Coder','praktis, kritis, dan bertanggung jawab',
-    'Buku ini adalah intisari jurnal belajar saya dari nol',
-    'edisi pertama dan belum final',
-    'Cara berpikir dan batas AI','Peta teknologi dan cara memilih',
-    'Bekerja dengan AI secara terstruktur','Keamanan dasar, data pelanggan',
-    'Biaya, proyek perdana, perawatan setelah rilis',
-    'Dipakai di lapangan','Contoh ilustrasi','Belum diuji',
+    'Dapur Vibe Coder','Meracik Ide Menjadi Produk Digital Bersama AI','Menyiapkan Dapur','Meracik Resep','Mulai Memasak','Menguji Sebelum Menyajikan','Menyajikan Produk Nyata','Dipakai di lapangan','Contoh ilustrasi','Belum diuji',
     'Harga, kuota, dan ketentuan layanan'
   ])assert(detail.includes(phrase),'Original content must be in detail page: '+phrase);
   assert(detail.includes('href="./"')&&detail.includes('Pustaka eBook'));
@@ -54,7 +48,7 @@ test('catalog represents verified titles only and paths resolve',()=>{
   }
   assert.equal(catalog.books[0].publishedAt,'2026-11-04');
   assert.equal(catalog.books[0].status,'published');
-  assert(rss.includes('Buku Pintar Vibe Coder')&&rss.includes('Buku_Pintar_Vibe_Coder_Edisi1.pdf'));
+  assert(rss.includes('Dapur Vibe Coder')&&rss.includes('Dapur_Vibe_Coder.pdf'));
 });
 
 test('home uses unique landmarks, readable week status, and no fake subscribe form',()=>{
@@ -73,8 +67,7 @@ test('home uses unique landmarks, readable week status, and no fake subscribe fo
   assert(home.includes('Tidak ada jadwal terbit rutin yang dijanjikan'));
   assert(!home.includes('type="email"')&&!home.includes('Daftar untuk notifikasi'));
   assert(home.includes('feed.xml')&&home.includes('data/books.json')===false);
-  for(const id of ['featuredCover','featuredCoverLink','featuredTitle','featuredOpenLink','comingTitle','comingText'])assert(home.includes('id="'+id+'"'),'Missing catalog-driven frontpage element '+id);
-  assert(libraryJS.includes('featuredBook(published[0])')&&libraryJS.includes('upcomingNotice(books,today)'));
+  assert(home.includes('id="chapter-1"') && home.includes('id="bookSearch"'));
 
 });
 
@@ -111,12 +104,7 @@ test('weekly date boundaries follow Monday to Sunday, Jakarta local dates',()=>{
 });
 
 test('design remains browser-only, accessible, mobile-ready and safe from injection',()=>{
-  for(const token of ['--paper:#FAFAFC','--ink:#15161C','--sun:#FFD25E','--sky:#5EC4FF','--lilac:#B9A3FF','--ui:"Geist"','--display:"Plus Jakarta Sans"','--editorial:"Instrument Serif"'])
-    assert(css.includes(token),'Linggau design token missing: '+token);
-  assert(css.includes('prefers-reduced-motion:reduce'));
-  assert(css.includes('reveal-ready.reveal-visible'));
-  assert(css.includes('@media(max-width:520px)'));
-  assert(css.includes('.library-hero')&&css.includes('.weekly-banner')&&css.includes('.books-grid'));
+  for(const token of ['--paper:#F7F7F5','--ink:#20211F','--accent:#a44913','.reader-layout','.books-grid','.education-grid','@media(max-width:520px)','prefers-reduced-motion:reduce'])assert(css.includes(token),token);
   assert(siteJS.includes('IntersectionObserver')&&siteJS.includes('localStorage.setItem'));
   for(const source of [siteJS,libraryJS])new vm.Script(source);
   assert(libraryJS.includes("document.createElement(tag)")&&!libraryJS.includes('innerHTML'));
@@ -132,3 +120,7 @@ test('design remains browser-only, accessible, mobile-ready and safe from inject
   for(const c of css){if(c==='{')braces.push('{');if(c==='}')assert(braces.pop(),'Unexpected CSS closing brace');}
   assert.equal(braces.length,0,'CSS braces must match');
 });
+
+test('free Chapter 1 and reader contracts',()=>{const reader=read('baca.html'),js=read('js/reader.js');new vm.Script(js);for(const s of [home,detail]){assert(s.includes('Gratis Rp0'));assert(s.includes('ozzbygx3'));assert(s.includes('1FAIpQLSfzESJyEBbfKCbc8-xBmmF4muhKqjSzf9E40__3sTAUe01NOA'));assert(s.includes('PLcs3Kh8r8dmw'));assert(s.includes('baca.html'));}assert(libraryJS.includes('toolbar.hidden=published.length===0'));for(const id of ['readerSearch','readerToc','chapterSelect','readerContent','prevChapter','nextChapter','fontMinus','fontPlus'])assert(reader.includes('id="'+id+'"'));assert(js.includes("DecompressionStream('deflate-raw')")&&js.includes('createTextNode')&&!js.includes('innerHTML'));assert(read('sitemap.xml').includes('baca.html'));});
+
+ test('approved book identity and public version policy',()=>{const book=catalog.books[0];assert.equal(book.title,'Dapur Vibe Coder');assert.equal(book.cover,'Dapur_Vibe_Coder_Mockup.jpg');for(const doc of [home,detail,read('baca.html')]){assert(!/Versi 4\.0|Buku Pintar Vibe Coder/.test(doc));}for(const name of ['Dapur_Vibe_Coder_Sampul.jpg','Dapur_Vibe_Coder_Mockup.jpg','Dapur_Vibe_Coder.pdf','Dapur_Vibe_Coder.epub'])assert(fs.existsSync(path.join(root,name)),name);for(const ext of ['pdf','epub'])assert.deepEqual(fs.readFileSync(path.join(root,'Dapur_Vibe_Coder.'+ext)),fs.readFileSync(path.join(root,'Buku_Pintar_Vibe_Coder_Edisi1.'+ext)));assert(rss.includes('length="'+fs.statSync(path.join(root,'Dapur_Vibe_Coder.pdf')).size+'"'));});
