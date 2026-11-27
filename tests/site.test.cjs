@@ -14,7 +14,7 @@ test('real first book, PDF EPUB and cover are intact',()=>{
     assert(fs.existsSync(path.join(root,name)),name+' should exist');
   }
   for(const name of ['Dapur_Vibe_Coder.pdf','Dapur_Vibe_Coder.epub']){
-    assert(detail.split('href="'+name+'" download').length-1>=2);
+    assert(detail.split('href="https://github.com/cuan74468-ux/buku-pintar-vibe-coder/releases/download/dapur-vibe-coder/'+name+'" download').length-1>=2);
     assert(home.includes(name),'The homepage must offer real downloads even without JS');
   }
   assert(home.includes('Dapur_Vibe_Coder_Mockup.jpg')&&detail.includes('Dapur_Vibe_Coder_Mockup.jpg'));
@@ -124,3 +124,5 @@ test('design remains browser-only, accessible, mobile-ready and safe from inject
 test('free Chapter 1 and reader contracts',()=>{const reader=read('baca.html'),js=read('js/reader.js');new vm.Script(js);for(const s of [home,detail]){assert(s.includes('Gratis Rp0'));assert(s.includes('ozzbygx3'));assert(s.includes('1FAIpQLSfzESJyEBbfKCbc8-xBmmF4muhKqjSzf9E40__3sTAUe01NOA'));assert(s.includes('PLcs3Kh8r8dmw'));assert(s.includes('baca.html'));}assert(libraryJS.includes('toolbar.hidden=published.length===0'));for(const id of ['readerSearch','readerToc','chapterSelect','readerContent','prevChapter','nextChapter','fontMinus','fontPlus'])assert(reader.includes('id="'+id+'"'));assert(js.includes("DecompressionStream('deflate-raw')")&&js.includes('createTextNode')&&!js.includes('innerHTML'));assert(read('sitemap.xml').includes('baca.html'));});
 
  test('approved book identity and public version policy',()=>{const book=catalog.books[0];assert.equal(book.title,'Dapur Vibe Coder');assert.equal(book.cover,'Dapur_Vibe_Coder_Mockup.jpg');for(const doc of [home,detail,read('baca.html')]){assert(!/Versi 4\.0|Buku Pintar Vibe Coder/.test(doc));}for(const name of ['Dapur_Vibe_Coder_Sampul.jpg','Dapur_Vibe_Coder_Mockup.jpg','Dapur_Vibe_Coder.pdf','Dapur_Vibe_Coder.epub'])assert(fs.existsSync(path.join(root,name)),name);for(const ext of ['pdf','epub'])assert.deepEqual(fs.readFileSync(path.join(root,'Dapur_Vibe_Coder.'+ext)),fs.readFileSync(path.join(root,'Buku_Pintar_Vibe_Coder_Edisi1.'+ext)));assert(rss.includes('length="'+fs.statSync(path.join(root,'Dapur_Vibe_Coder.pdf')).size+'"'));});
+
+test('all visible ebook downloads route to verified release; offline reader files preserved',()=>{const release='https://github.com/cuan74468-ux/buku-pintar-vibe-coder/releases/download/dapur-vibe-coder/';for(const doc of [home,detail,read('baca.html')]){assert(!/href="Dapur_Vibe_Coder\.(pdf|epub)" download/.test(doc));assert(doc.includes(release+'Dapur_Vibe_Coder.pdf'));}assert(libraryJS.includes(release));assert(read('js/reader.js').includes('Dapur_Vibe_Coder.epub'));});
