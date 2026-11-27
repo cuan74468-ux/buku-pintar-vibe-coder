@@ -136,7 +136,7 @@ test('GA4 consent pilot: no load before consent, canonical params, path gate, ch
   vm.runInNewContext(src,context);return {win,handlers,scripts,nodes};
  };
  const t=boot();assert.equal(t.scripts.length,0);t.win.DVCAnalytics.chapter(1);t.handlers.analyticsAccept();assert.equal(t.scripts.length,1);
- t.win.DVCAnalytics.chapter(1);t.win.DVCAnalytics.chapter(2);const events=t.win.dataLayer.filter(a=>a[0]==='event');assert.deepEqual(events.map(a=>a[1]),['page_view','reader_open','chapter_view','chapter_view']);assert.equal(events[0][2].page_referrer,'https://example.com/');assert(!JSON.stringify(events).includes('secret'));
+ t.win.DVCAnalytics.chapter(1);t.win.DVCAnalytics.chapter(2);const events=t.win.dataLayer.filter(a=>a[0]==='event');assert.deepEqual(Array.from(events,a=>a[1]),['page_view','reader_open','chapter_view','chapter_view']);assert.equal(events[0][2].page_referrer,'https://example.com/');assert(!JSON.stringify(events).includes('secret'));
  t.handlers.analyticsReject();t.win.DVCAnalytics.chapter(3);assert.equal(t.win.dataLayer.filter(a=>a[0]==='event').length,4);assert.equal(boot('/other/','yes').scripts.length,0);
  for(const p of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html']){const s=read(p);assert.equal((s.match(/js\/analytics\.js/g)||[]).length,1);assert(s.includes('analyticsReject'));}
 });
