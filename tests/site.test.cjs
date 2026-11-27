@@ -126,3 +126,17 @@ test('free Chapter 1 and reader contracts',()=>{const reader=read('baca.html'),j
  test('approved book identity and public version policy',()=>{const book=catalog.books[0];assert.equal(book.title,'Dapur Vibe Coder');assert.equal(book.cover,'Dapur_Vibe_Coder_Mockup.jpg');for(const doc of [home,detail,read('baca.html')]){assert(!/Versi 4\.0|Buku Pintar Vibe Coder/.test(doc));}for(const name of ['Dapur_Vibe_Coder_Sampul.jpg','Dapur_Vibe_Coder_Mockup.jpg','Dapur_Vibe_Coder.pdf','Dapur_Vibe_Coder.epub'])assert(fs.existsSync(path.join(root,name)),name);for(const ext of ['pdf','epub'])assert.deepEqual(fs.readFileSync(path.join(root,'Dapur_Vibe_Coder.'+ext)),fs.readFileSync(path.join(root,'Buku_Pintar_Vibe_Coder_Edisi1.'+ext)));assert(rss.includes('length="'+fs.statSync(path.join(root,'Dapur_Vibe_Coder.pdf')).size+'"'));});
 
 test('all visible ebook downloads route to verified release; offline reader files preserved',()=>{const release='https://github.com/cuan74468-ux/buku-pintar-vibe-coder/releases/download/dapur-vibe-coder/';for(const doc of [home,detail,read('baca.html')]){assert(!/href="Dapur_Vibe_Coder\.(pdf|epub)" download/.test(doc));assert(doc.includes(release+'Dapur_Vibe_Coder.pdf'));}assert(libraryJS.includes(release));assert(read('js/reader.js').includes('Dapur_Vibe_Coder.epub'));});
+
+test('GA4 consent pilot: no load before consent, canonical params, path gate, chapter dedupe',()=>{
+ const src=read('js/analytics.js');
+ const boot=(pathname='/buku-pintar-vibe-coder/baca.html',choice=null)=>{
+  const handlers={},scripts=[],nodes={};for(const id of ['analyticsPreferences','analyticsStatus','analyticsAccept','analyticsReject'])nodes[id]={addEventListener:(n,f)=>handlers[id]=f};
+  const win={},doc={referrer:'https://example.com/private?secret=abc',cookie:'',getElementById:id=>nodes[id],createElement:()=>({}),head:{append:s=>scripts.push(s)},addEventListener:(n,f)=>handlers[n]=f};
+  const context={window:win,document:doc,location:{protocol:'https:',hostname:'cuan74468-ux.github.io',origin:'https://cuan74468-ux.github.io',pathname,reload(){}},localStorage:{getItem:()=>choice,setItem(){}},URL,Date};
+  vm.runInNewContext(src,context);return {win,handlers,scripts,nodes};
+ };
+ const t=boot();assert.equal(t.scripts.length,0);t.win.DVCAnalytics.chapter(1);t.handlers.analyticsAccept();assert.equal(t.scripts.length,1);
+ t.win.DVCAnalytics.chapter(1);t.win.DVCAnalytics.chapter(2);const events=t.win.dataLayer.filter(a=>a[0]==='event');assert.deepEqual(events.map(a=>a[1]),['page_view','reader_open','chapter_view','chapter_view']);assert.equal(events[0][2].page_referrer,'https://example.com/');assert(!JSON.stringify(events).includes('secret'));
+ t.handlers.analyticsReject();t.win.DVCAnalytics.chapter(3);assert.equal(t.win.dataLayer.filter(a=>a[0]==='event').length,4);assert.equal(boot('/other/','yes').scripts.length,0);
+ for(const p of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html']){const s=read(p);assert.equal((s.match(/js\/analytics\.js/g)||[]).length,1);assert(s.includes('analyticsReject'));}
+});
