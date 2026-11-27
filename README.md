@@ -9,8 +9,10 @@ Katalog eBook gratis karya Ferry. Halaman utama kini menjadi **perpustakaan yang
 - `index.html` — beranda katalog, status rilis pekan ini, dan tombol berbagi.
 - `buku-pintar-vibe-coder-edisi-1.html` — detail eBook pertama, materi, label bukti dan tautan unduhan asli.
 - `data/books.json` — **satu file data katalog**. Menambah buku cukup lewat GitHub Web.
-- `js/library.js` — katalog dinamis dan status Senin–Minggu (WIB), pencarian muncul untuk 4+ buku.
-- `css/site.css` / `js/site.js` — desain Linggau, dark mode, scroll progress, responsif.
+- `js/library.js` — katalog dinamis dan status Senin–Minggu (WIB), pencarian tersedia sejak satu buku terbit.
+- `baca.html` / `js/reader.js` — pembaca online EPUB asli, daftar isi, pencarian isi dan pengaturan ukuran huruf.
+- `css/site.css` / `js/site.js` — desain netral mobile-first, dark mode, scroll progress, responsif.
+- `sitemap.xml` / `icon.svg` — indeks halaman dan ikon situs.
 - `feed.xml` — RSS untuk mengikuti rilis; diperbarui manual saat buku baru terbit.
 - `sampul.png`, `Buku_Pintar_Vibe_Coder_Edisi1.pdf` dan `Buku_Pintar_Vibe_Coder_Edisi1.epub` — file asli, tidak dihapus.
 - `tests/site.test.cjs` — pengujian file, data, keamanan dan logika pekan.
@@ -65,12 +67,16 @@ Jika katalog JSON tidak bisa dimuat, buku pertama tetap tersedia dalam HTML stat
 
 ## Dasar desain dan transparansi
 
-Mengadopsi [LINGGAU DESIGN SYSTEM V1.2](https://docs.google.com/document/d/1mKuw7ztdgixwH71shkifZxM8D_2SWTgf2WSpNiBykz8/edit): **Clean · Human · Alive**, Geist, Plus Jakarta Sans, Instrument Serif, palet paper #FAFAFC, ink #15161C, sun #FFD25E, sky #5EC4FF, lilac #B9A3FF. Motion ringan dan menghormati reduced motion.
+Desain pustaka v3: putih hangat, abu-abu netral, hitam dan aksen oranye; font sistem tanpa CDN. Navigasi tunggal, akses baca/unduh yang jelas, dan tidak memakai dekorasi bergerak.
 
 Detail buku edisi pertama tetap menyampaikan tiga label “Dipakai di lapangan”, “Contoh ilustrasi”, “Belum diuji” dan peringatan bahwa edisi pertama **belum final**. File PDF, EPUB, sampul, dan isi editorial dipertahankan.
 
-Kode katalog menggunakan text node, bukan `innerHTML`, dan memvalidasi nama/path berkas untuk menghindari URL berbahaya. Tidak ada analytics atau pendaftaran data pribadi.
+Kode katalog menggunakan text node, bukan `innerHTML`, dan memvalidasi nama/path berkas untuk menghindari URL berbahaya. Tidak ada analytics atau pengumpulan data pada website pustaka. Form pendaftaran Chapter 1 adalah tautan eksternal Google Forms; Classroom memerlukan akun Google.
 
 ## Pemeriksaan
 
 GitHub Actions menjalankan pengecekan sintaks, data katalog, status mingguan WIB, file unduhan, SEO dasar, dan layout source. **CI tidak menggantikan uji visual dan unduh di browser/Android**, yang masih perlu diperiksa langsung.
+
+## Chapter 1 dan pembaca online
+
+Pintu edukasi Chapter 1 menyediakan tiga tautan resmi: pendaftaran, Google Classroom, dan playlist YouTube. Akses buku gratis, tanpa login membership. Pembaca online mengambil EPUB asli dan merender struktur teks dengan allowlist DOM; tidak mengeksekusi script atau style dari file buku. Browser yang tidak mendukung kompresi ZIP/deflate-raw dapat memakai PDF atau EPUB asli. GitHub Actions menjalankan pengujian kandidat di Chromium desktop dan mobile 360px. File unduhan asli tidak diganti.

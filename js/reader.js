@@ -31,6 +31,11 @@ function clean(n,from){
  if(n.nodeType===3)return document.createTextNode(n.nodeValue||'');
  if(n.nodeType!==1)return document.createDocumentFragment();
  const tag=n.localName.toLowerCase();
+ if(tag==='svg'){
+  const embedded=[...n.getElementsByTagNameNS('*','image')].find(img=>resolve(from,img.getAttribute('href')||img.getAttributeNS('http://www.w3.org/1999/xlink','href')||'')?.path==='EPUB/media/cover-01.png');
+  if(embedded){const cover=el('img');cover.src='sampul.png';cover.alt='Sampul Buku Pintar Vibe Coder';return cover;}
+  return document.createDocumentFragment();
+ }
  if(['script','style','iframe','object','embed','form','input','button','svg','math','audio','video','link'].includes(tag))return document.createDocumentFragment();
  const out=allowed.has(tag)?el(tag):document.createDocumentFragment();
  if(out.nodeType===1){
