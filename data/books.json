@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "lastUpdated": "2026-11-12",
+  "lastUpdated": "2026-11-27",
   "books": [
     {
       "id": "buku-pintar-vibe-coder-edisi-1",
-      "title": "Buku Pintar Vibe Coder",
-      "subtitle": "Belajar membangun aplikasi dengan bantuan AI secara praktis, kritis, dan bertanggung jawab.",
-      "summary": "Catatan belajar dari pengalaman pelaku usaha kuliner membangun aplikasi dengan AI. Edisi pertama ini belum final dan membedakan praktik, ilustrasi, serta hal yang belum diuji.",
+      "title": "Dapur Vibe Coder",
+      "subtitle": "Meracik Ide Menjadi Produk Digital Bersama AI",
+      "summary": "Cerita perjalanan seorang pelaku usaha kuliner membangun produk digital bersama AI, disertai latihan, pemeriksaan keamanan, dan studi kasus nyata.",
       "author": "Ferry",
       "category": "Vibe Coding",
-      "edition": "Edisi 1 · Versi 4.0",
+      "edition": "Edisi 1",
       "publishedAt": "2026-11-04",
       "status": "published",
-      "cover": "sampul.png",
+      "cover": "Dapur_Vibe_Coder_Mockup.jpg",
       "detailUrl": "buku-pintar-vibe-coder-edisi-1.html",
       "downloads": {
-        "pdf": "Buku_Pintar_Vibe_Coder_Edisi1.pdf",
-        "epub": "Buku_Pintar_Vibe_Coder_Edisi1.epub"
+        "pdf": "Dapur_Vibe_Coder.pdf",
+        "epub": "Dapur_Vibe_Coder.epub"
       }
     }
   ]
