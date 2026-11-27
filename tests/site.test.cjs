@@ -132,7 +132,7 @@ test('GA4 consent pilot: no load before consent, canonical params, path gate, ch
  const boot=(pathname='/buku-pintar-vibe-coder/baca.html',choice=null)=>{
   const handlers={},scripts=[],nodes={};for(const id of ['analyticsPreferences','analyticsStatus','analyticsAccept','analyticsReject'])nodes[id]={addEventListener:(n,f)=>handlers[id]=f};
   const win={},doc={referrer:'https://example.com/private?secret=abc',cookie:'',getElementById:id=>nodes[id],createElement:()=>({}),head:{append:s=>scripts.push(s)},addEventListener:(n,f)=>handlers[n]=f};
-  const context={window:win,document:doc,location:{protocol:'https:',hostname:'cuan74468-ux.github.io',origin:'https://cuan74468-ux.github.io',pathname,reload(){}},localStorage:{getItem:()=>choice,setItem(){}},URL,Date};
+  let stored=choice;const context={window:win,document:doc,location:{protocol:'https:',hostname:'cuan74468-ux.github.io',origin:'https://cuan74468-ux.github.io',pathname,reload(){}},localStorage:{getItem:()=>stored,setItem:(k,v)=>{stored=v}},URL,Date};
   vm.runInNewContext(src,context);return {win,handlers,scripts,nodes};
  };
  const t=boot();assert.equal(t.scripts.length,0);t.win.DVCAnalytics.chapter(1);t.handlers.analyticsAccept();assert.equal(t.scripts.length,1);

@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');
+const origin='https://cuan74468-ux.github.io',base='/buku-pintar-vibe-coder/',root=origin+base;
+(async()=>{const b=await chromium.launch();try{for(const width of [360,1440]){
+const p=await b.newPage({viewport:{width,height:900}});let google=0;const errors=[];p.on('pageerror',e=>errors.push(e.message));
+await p.route('**/*',async route=>{const u=new URL(route.request().url());if(u.hostname==='www.googletagmanager.com'){google++;return route.fulfill({contentType:'application/javascript',body:'/* mocked GA transport: never sends data */'});}
+if(u.origin!==origin||!u.pathname.startsWith(base))return route.fulfill({status:200,body:''});
+const file=u.pathname.slice(base.length)||'index.html';const target=path.resolve(file);if(!target.startsWith(process.cwd()+path.sep)||!fs.existsSync(target)||!fs.statSync(target).isFile())return route.fulfill({status:404,body:''});return route.fulfill({path:target});});
+await p.goto(root+'baca.html?private=secret#bagian-2');await p.waitForFunction(()=>!document.querySelector('#chapterSelect').disabled);
+assert.equal(google,0);await p.locator('#analyticsReject').click();assert.equal(google,0);await p.reload();assert.equal(google,0);await p.locator('#analyticsPreferences summary').click();await p.locator('#analyticsAccept').click();await p.waitForFunction(()=>!!window.dataLayer);await p.waitForTimeout(100);assert.equal(google,1);
+let events=await p.evaluate(()=>Array.from(window.dataLayer).filter(a=>a[0]==='event').map(a=>[a[1],a[2]]));assert.deepEqual(events.map(e=>e[0]),['page_view','reader_open','chapter_view']);assert.equal(events[2][1].section_index,2);assert(!JSON.stringify(events).includes('secret'));
+await p.locator('#chapterSelect').selectOption('2');await p.locator('#chapterSelect').selectOption('2');events=await p.evaluate(()=>Array.from(window.dataLayer).filter(a=>a[0]==='event').map(a=>a[1]));assert.equal(events.filter(e=>e==='chapter_view').length,2);
+await p.locator('#analyticsReject').click();await p.waitForLoadState('domcontentloaded');assert.equal(google,1);assert.equal(await p.evaluate(()=>localStorage.getItem('dvc.analytics.consent.v1')),'no');assert.deepEqual(errors,[]);console.log('PASS GA consent, refusal, reader events, canonical URL, revoke '+width);await p.close();}
+}finally{await b.close()}})().catch(e=>{console.error(e);process.exitCode=1});

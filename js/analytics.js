@@ -7,13 +7,13 @@ if(location.protocol!=='https:'||location.hostname!=='cuan74468-ux.github.io'||!
 const page=pages.get(location.pathname), canonical=location.origin+(page==='home'?BASE:location.pathname);
 let allowed=false, loaded=false, section=0, lastSection=0;
 const read=()=>{try{return localStorage.getItem(KEY)}catch{return null}};
-const save=v=>{try{localStorage.setItem(KEY,v)}catch{}};
+const save=v=>{try{localStorage.setItem(KEY,v);return localStorage.getItem(KEY)===v}catch{return false}};
 const safeRef=()=>{try{const u=new URL(document.referrer);return /^https?:$/.test(u.protocol)?u.origin+'/':''}catch{return ''}};
 const send=(name,params={})=>{if(allowed&&loaded)window.gtag('event',name,{project_id:'dapur-vibe-coder',environment:'production',page_type:page,page_location:canonical,page_referrer:safeRef(),...params})};
 function chapter(n){if(page!=='reader'||!Number.isInteger(n)||n<1||n>150)return;section=n;if(allowed&&loaded&&lastSection!==n){lastSection=n;send('chapter_view',{section_index:n})}}
 window.DVCAnalytics=Object.freeze({chapter});
 function start(){
- if(loaded)return;allowed=true;window['ga-disable-'+ID]=false;
+ if(loaded||!save('yes'))return;allowed=true;window['ga-disable-'+ID]=false;
  window.dataLayer=window.dataLayer||[];window.gtag=function(){window.dataLayer.push(arguments)};
  window.gtag('consent','default',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
  window.gtag('js',new Date());
@@ -27,7 +27,7 @@ window['ga-disable-'+ID]=true;
 const panel=document.getElementById('analyticsPreferences'), status=document.getElementById('analyticsStatus');
 function update(){status.textContent=allowed?'Analitik diizinkan.':'Analitik tidak diizinkan.'}
 document.getElementById('analyticsAccept').addEventListener('click',()=>{save('yes');start();update()});
-document.getElementById('analyticsReject').addEventListener('click',()=>{save('no');stop();update();if(loaded)location.reload()});
+document.getElementById('analyticsReject').addEventListener('click',()=>{const persisted=save('no');stop();update();if(loaded&&persisted)location.reload()});
 if(read()==='yes')start();update();
 if(read()===null)panel.open=true;
 document.addEventListener('click',e=>{
