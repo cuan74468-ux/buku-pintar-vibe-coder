@@ -62,6 +62,7 @@ function show(index,anchor='',move=false){
  $('prevChapter').disabled=index===0;$('nextChapter').disabled=index===chapters.length-1;
  for(const btn of toc.querySelectorAll('button'))btn.setAttribute('aria-current',String(btn.dataset.index===String(index)));
  history.replaceState(null,'','#bagian-'+(index+1));
+ window.DVCAnalytics?.chapter(index+1);
  if(move){const target=anchor?document.getElementById('book-'+anchor):content;(target||content).scrollIntoView({block:'start'});}
 }
 function doSearch(){
