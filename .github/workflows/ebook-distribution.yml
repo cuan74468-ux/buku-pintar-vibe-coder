@@ -1,0 +1,46 @@
+name: Publish ebook download assets
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/ebook-distribution.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: ebook-distribution
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate approved files
+        run: |
+          set -euo pipefail
+          test "$(wc -c < Dapur_Vibe_Coder.pdf)" -eq 908360
+          test "$(wc -c < Dapur_Vibe_Coder.epub)" -eq 761142
+          test "$(git hash-object Dapur_Vibe_Coder.pdf)" = e3662eaba94dc5314d0dcae0e32d5bb3ae421af8
+          test "$(git hash-object Dapur_Vibe_Coder.epub)" = d487f77c551922e548848bafadee23929819557e
+      - name: Publish once and preserve download counts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag=dapur-vibe-coder
+          if gh release view "$tag" --json assets,isDraft > /tmp/release.json 2>/dev/null; then
+            jq -e '.isDraft == false and ([.assets[].name] | sort) == ["Dapur_Vibe_Coder.epub","Dapur_Vibe_Coder.pdf"]' /tmp/release.json
+            echo "Existing release preserved; no asset replacement."
+          else
+            gh release create "$tag" Dapur_Vibe_Coder.pdf Dapur_Vibe_Coder.epub --target "$GITHUB_SHA" --title "Dapur Vibe Coder" --notes "Buku digital gratis untuk penggunaan pribadi. Pustaka resmi: https://cuan74468-ux.github.io/buku-pintar-vibe-coder/ — Ketentuan distribusi: https://github.com/cuan74468-ux/buku-pintar-vibe-coder/blob/main/HAK-CIPTA.md"
+          fi
+          mkdir -p /tmp/ebook-release
+          gh release download "$tag" --pattern 'Dapur_Vibe_Coder.*' --dir /tmp/ebook-release
+          cmp Dapur_Vibe_Coder.pdf /tmp/ebook-release/Dapur_Vibe_Coder.pdf
+          cmp Dapur_Vibe_Coder.epub /tmp/ebook-release/Dapur_Vibe_Coder.epub
+          gh release view "$tag" --json url,assets --jq '{url,assets:[.assets[]|{name,size,downloadCount}]}'
+          echo "PASS verified release assets; verification downloads are included in counters."
