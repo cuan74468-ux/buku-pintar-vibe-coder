@@ -73,8 +73,7 @@ test('home uses unique landmarks, readable week status, and no fake subscribe fo
   assert(home.includes('Tidak ada jadwal terbit rutin yang dijanjikan'));
   assert(!home.includes('type="email"')&&!home.includes('Daftar untuk notifikasi'));
   assert(home.includes('feed.xml')&&home.includes('data/books.json')===false);
-  for(const id of ['featuredCover','featuredCoverLink','featuredTitle','featuredOpenLink','comingTitle','comingText'])assert(home.includes('id="'+id+'"'),'Missing catalog-driven frontpage element '+id);
-  assert(libraryJS.includes('featuredBook(published[0])')&&libraryJS.includes('upcomingNotice(books,today)'));
+  assert(home.includes('id="chapter-1"') && home.includes('id="bookSearch"'));
 
 });
 
@@ -111,12 +110,7 @@ test('weekly date boundaries follow Monday to Sunday, Jakarta local dates',()=>{
 });
 
 test('design remains browser-only, accessible, mobile-ready and safe from injection',()=>{
-  for(const token of ['--paper:#FAFAFC','--ink:#15161C','--sun:#FFD25E','--sky:#5EC4FF','--lilac:#B9A3FF','--ui:"Geist"','--display:"Plus Jakarta Sans"','--editorial:"Instrument Serif"'])
-    assert(css.includes(token),'Linggau design token missing: '+token);
-  assert(css.includes('prefers-reduced-motion:reduce'));
-  assert(css.includes('reveal-ready.reveal-visible'));
-  assert(css.includes('@media(max-width:520px)'));
-  assert(css.includes('.library-hero')&&css.includes('.weekly-banner')&&css.includes('.books-grid'));
+  for(const token of ['--paper:#F7F7F5','--ink:#20211F','--accent:#a44913','.reader-layout','.books-grid','.education-grid','@media(max-width:520px)','prefers-reduced-motion:reduce'])assert(css.includes(token),token);
   assert(siteJS.includes('IntersectionObserver')&&siteJS.includes('localStorage.setItem'));
   for(const source of [siteJS,libraryJS])new vm.Script(source);
   assert(libraryJS.includes("document.createElement(tag)")&&!libraryJS.includes('innerHTML'));
@@ -132,3 +126,5 @@ test('design remains browser-only, accessible, mobile-ready and safe from inject
   for(const c of css){if(c==='{')braces.push('{');if(c==='}')assert(braces.pop(),'Unexpected CSS closing brace');}
   assert.equal(braces.length,0,'CSS braces must match');
 });
+
+test('free Chapter 1 and reader contracts',()=>{const reader=read('baca.html'),js=read('js/reader.js');new vm.Script(js);for(const s of [home,detail]){assert(s.includes('Gratis Rp0'));assert(s.includes('ozzbygx3'));assert(s.includes('1FAIpQLSfzESJyEBbfKCbc8-xBmmF4muhKqjSzf9E40__3sTAUe01NOA'));assert(s.includes('PLcs3Kh8r8dmw'));assert(s.includes('baca.html'));}assert(libraryJS.includes('toolbar.hidden=published.length===0'));for(const id of ['readerSearch','readerToc','chapterSelect','readerContent','prevChapter','nextChapter','fontMinus','fontPlus'])assert(reader.includes('id="'+id+'"'));assert(js.includes("DecompressionStream('deflate-raw')")&&js.includes('createTextNode')&&!js.includes('innerHTML'));assert(read('sitemap.xml').includes('baca.html'));});
