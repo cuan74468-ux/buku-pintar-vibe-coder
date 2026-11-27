@@ -44,7 +44,7 @@
   }
   function anchor(href,text,className='',download=false){
     const a=node('a',className,text);
-    a.href=href;
+    a.href=download&&/^Dapur_Vibe_Coder\.(pdf|epub)$/.test(href)?'https://github.com/cuan74468-ux/buku-pintar-vibe-coder/releases/download/dapur-vibe-coder/'+href:href;
     if(download)a.setAttribute('download','');
     return a;
   }
