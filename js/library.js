@@ -57,7 +57,7 @@
     cover.setAttribute('aria-label',(directDownload?'Unduh ':'Lihat ')+book.title);
     const img=node('img');
     img.src=book.cover;img.loading='lazy';img.alt='Sampul '+book.title;
-    cover.append(img,node('span','book-cover-tag','GRATIS · TERSEDIA'));
+    cover.append(img,node('span','book-cover-tag','Gratis'));
     const body=node('div','library-book-content');
     body.append(node('span','book-category',book.category+' / '+book.edition));
     const h3=node('h3');
@@ -65,9 +65,10 @@
     body.append(h3,node('p','',book.subtitle));
     body.append(node('div','book-byline','Oleh '+book.author+' · '+niceDate(book.publishedAt)));
     const links=node('div','book-links');
-    links.append(anchor(mainUrl,book.detailUrl?'Lihat buku ↗':'Unduh buku ↓','book-details',directDownload));
+    links.append(anchor(mainUrl,book.detailUrl?'Detail buku':'Unduh buku ↓',book.detailUrl?'text-link':'book-details',directDownload));
     if(book.downloads.pdf)links.append(anchor(book.downloads.pdf,'PDF ↓','',true));
     if(book.downloads.epub)links.append(anchor(book.downloads.epub,'EPUB ↓','',true));
+    if(book.detailUrl){const read=anchor('baca.html','Baca online','primary');if(book.id==='buku-pintar-vibe-coder-edisi-1')links.prepend(read);}
     body.append(links);
     article.append(cover,body);
     return article;
@@ -185,7 +186,7 @@
       featuredBook(published[0]);
       upcomingNotice(books,today);
       if(search){
-        toolbar.hidden=published.length<4;
+        toolbar.hidden=published.length===0;
         search.addEventListener('input',()=>render(published,search.value));
       }
       const count=$('#catalogCount');
