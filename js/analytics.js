@@ -40,12 +40,11 @@ function start(){
 }
 function stop(){allowed=false;window['ga-disable-'+ID]=true;if(loaded)window.gtag('consent','update',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});for(const part of document.cookie.split(';')){const name=part.split('=')[0].trim();if(/^dvc_ga(?:_|$)/.test(name))document.cookie=name+'=; Max-Age=0; Path='+BASE+'; Secure; SameSite=Lax';}}
 window['ga-disable-'+ID]=true;
-const panel=document.getElementById('analyticsPreferences'), status=document.getElementById('analyticsStatus');
+const status=document.getElementById('analyticsStatus');
 function update(){status.textContent=allowed?'Analitik diizinkan.':read()==='yes'?'Analitik tidak aktif pada halaman ini karena pengamanan privasi.':'Analitik tidak diizinkan.'}
 document.getElementById('analyticsAccept').addEventListener('click',()=>{save('yes');start();update()});
 document.getElementById('analyticsReject').addEventListener('click',()=>{const persisted=save('no');stop();update();if(loaded&&persisted)location.reload()});
 if(read()==='yes')start();update();
-if(read()===null)panel.open=true;
 document.addEventListener('click',e=>{
  if(!allowed)return;
  const a=e.target.closest?.('a[href]');if(!a)return;
