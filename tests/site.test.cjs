@@ -32,7 +32,7 @@ test('Dapur Vibe Coder editorial content is aligned on detail page',()=>{
 test('catalog represents verified titles only and paths resolve',()=>{
   assert.equal(catalog.schemaVersion,1);
   assert.match(catalog.lastUpdated,/^\d{4}-\d{2}-\d{2}$/);
-  assert.equal(catalog.books.length,1,'Future titles must not be invented');
+  assert.deepEqual(catalog.books.map(b=>b.id),['buku-pintar-vibe-coder-edisi-1','modal-nekat','tekor']);
   const ids=new Set();
   for(const book of catalog.books){
     assert(!ids.has(book.id),'Book IDs must be unique');
@@ -99,7 +99,7 @@ test('weekly date boundaries follow Monday to Sunday, Jakarta local dates',()=>{
   api.weeklyAnnouncement([book,scheduled],catalog.lastUpdated,'2026-11-12');
   assert.match(nodes.get('#weekStatus').textContent,/dijadwalkan terbit pekan ini/);
   const valid=api.validate(catalog);
-  assert.equal(valid.books.length,1);
+  assert.equal(valid.books.length,3);
   assert.throws(()=>api.validate({...catalog,books:[book,{...book}]}),/duplikat/);
 });
 
@@ -170,3 +170,5 @@ test('public library does not link to unreleased membership',()=>{for(const p of
 
 
 test('Studio brand replaces the generic book icon on all pages',()=>{for(const p of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html']){const html=read(p);assert.match(html,/<span class="logo-icon"><img src="assets\/web\/linggau-ai-logo\.webp"/);assert.match(html,/<link rel="icon" href="assets\/web\/linggau-ai-logo\.webp"/);assert(!html.includes('<span class="logo-icon"><svg'));}});
+
+test('three approved titles appear even if catalog fetch fails',()=>{for(const b of catalog.books){assert(home.includes('data-book-id="'+b.id+'"'));assert(home.includes(b.title));}for(const b of catalog.books.slice(1)){assert(!b.edition);for(const f of Object.values(b.downloads))assert(home.includes('href="'+f+'"'));assert(rss.includes(b.title));}});

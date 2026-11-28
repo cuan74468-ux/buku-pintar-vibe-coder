@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "lastUpdated": "2026-11-27",
+  "lastUpdated": "2026-11-28",
   "books": [
     {
       "id": "buku-pintar-vibe-coder-edisi-1",
@@ -17,6 +17,36 @@
       "downloads": {
         "pdf": "Dapur_Vibe_Coder.pdf",
         "epub": "Dapur_Vibe_Coder.epub"
+      }
+    },
+    {
+      "id": "modal-nekat",
+      "title": "Modal Nekat?",
+      "subtitle": "Bekal sebelum memulai usaha kuliner.",
+      "summary": "Riset pembeli, modal, produk, harga, lokasi dan persiapan membuka warung.",
+      "author": "Noferi",
+      "category": "Bisnis Kuliner",
+      "publishedAt": "2026-11-28",
+      "status": "published",
+      "cover": "modal-nekat-cover.jpg",
+      "downloads": {
+        "pdf": "modal-nekat.pdf",
+        "epub": "modal-nekat.epub"
+      }
+    },
+    {
+      "id": "tekor",
+      "title": "Tekor",
+      "subtitle": "10 kesalahan dalam mengelola usaha kuliner.",
+      "summary": "Kas, stok, karyawan, kualitas, promosi, pelanggan dan legalitas usaha.",
+      "author": "Noferi",
+      "category": "Bisnis Kuliner",
+      "publishedAt": "2026-11-28",
+      "status": "published",
+      "cover": "tekor-cover.jpg",
+      "downloads": {
+        "pdf": "tekor.pdf",
+        "epub": "tekor.epub"
       }
     }
   ]

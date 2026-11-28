@@ -52,7 +52,7 @@
     const article=node('article','library-book');
     article.dataset.bookId=book.id;
     const mainUrl=book.detailUrl||book.downloads.pdf||book.downloads.epub;
-    const directDownload=!book.detailUrl;
+    const directDownload=!book.detailUrl&&!book.downloads.pdf;
     const cover=anchor(mainUrl,'','library-cover',directDownload);
     cover.setAttribute('aria-label',(directDownload?'Unduh ':'Lihat ')+book.title);
     const img=node('img');
@@ -65,7 +65,7 @@
     body.append(h3,node('p','',book.subtitle));
     body.append(node('div','book-byline','Oleh '+book.author+' · '+niceDate(book.publishedAt)));
     const links=node('div','book-links');
-    links.append(anchor(mainUrl,book.detailUrl?'Detail buku':'Unduh buku ↓',book.detailUrl?'text-link':'book-details',directDownload));
+    links.append(anchor(mainUrl,book.detailUrl?'Detail buku':book.downloads.pdf?'Baca PDF':'Unduh buku ↓',book.detailUrl?'text-link':'book-details',directDownload));
     if(book.downloads.pdf)links.append(anchor(book.downloads.pdf,'PDF ↓','',true));
     if(book.downloads.epub)links.append(anchor(book.downloads.epub,'EPUB ↓','',true));
     if(book.detailUrl){const read=anchor('baca.html','Baca online','primary');if(book.id==='buku-pintar-vibe-coder-edisi-1')links.prepend(read);}
@@ -92,7 +92,7 @@
     const meta=$('#featuredMeta');
     if(meta)meta.textContent=book.author+' · Gratis';
     const edition=$('#featuredEdition');
-    if(edition)edition.textContent=book.edition.toUpperCase();
+    if(edition)edition.textContent=String(book.edition||'').toUpperCase();
     const kicker=$('#featuredKicker');
     if(kicker)kicker.textContent='BUKU TERBARU';
   }
@@ -115,7 +115,7 @@
       if(!book||typeof book!=='object'||typeof book.id!=='string'||!/^[-a-z0-9]{4,90}$/.test(book.id)||ids.has(book.id))throw Error('ID buku tidak valid atau duplikat.');
       ids.add(book.id);
       if(!['published','scheduled','draft'].includes(book.status))throw Error('Status buku tidak dikenal.');
-      for(const key of ['title','subtitle','author','category','edition']){
+      for(const key of ['title','subtitle','author','category']){
         if(typeof book[key]!=='string'||!book[key].trim())throw Error('Data '+key+' tidak lengkap.');
       }
       if(!iso.test(book.publishedAt)||!Number.isFinite(new Date(book.publishedAt+'T00:00:00Z').getTime()))throw Error('Tanggal terbit tidak valid.');
@@ -196,7 +196,7 @@
       weeklyAnnouncement(books,lastUpdated,today);
       if(error)error.hidden=true;
     }catch(e){
-      if(error){error.hidden=false;error.textContent='Katalog terbaru belum dapat dimuat. Buku pertama tetap dapat diunduh dari kartu yang tersedia. ('+String(e.message||'Gagal memuat data')+')';}
+      if(error){error.hidden=false;error.textContent='Katalog terbaru belum dapat dimuat. Buku tetap dapat diunduh dari kartu yang tersedia. ('+String(e.message||'Gagal memuat data')+')';}
       const status=$('#weekStatus');
       if(status)status.textContent='Status rilis pekan ini belum dapat diverifikasi. Buka buku yang tersedia di katalog, lalu coba lagi nanti.';
     }
