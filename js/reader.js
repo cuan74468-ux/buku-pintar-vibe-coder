@@ -33,7 +33,7 @@ function clean(n,from){
  const tag=n.localName.toLowerCase();
  if(tag==='svg'){
   const embedded=[...n.getElementsByTagNameNS('*','image')].find(img=>resolve(from,img.getAttribute('href')||img.getAttributeNS('http://www.w3.org/1999/xlink','href')||'')?.path==='EPUB/media/cover.jpg');
-  if(embedded){const cover=el('img');cover.src='Dapur_Vibe_Coder_Sampul.jpg';cover.alt='Sampul Dapur Vibe Coder';return cover;}
+  if(embedded){const cover=el('img');cover.src='assets/web/cover.webp';cover.width=560;cover.height=792;cover.alt='Sampul Dapur Vibe Coder';return cover;}
   return document.createDocumentFragment();
  }
  if(['script','style','iframe','object','embed','form','input','button','svg','math','audio','video','link'].includes(tag))return document.createDocumentFragment();
@@ -41,7 +41,7 @@ function clean(n,from){
  if(out.nodeType===1){
   const id=n.getAttribute('id');if(id)out.id='book-'+id;
   if(tag==='img'){
-   const source=resolve(from,n.getAttribute('src')||'');if(source?.path==='EPUB/media/cover.jpg'){out.src='Dapur_Vibe_Coder_Sampul.jpg';out.alt=n.getAttribute('alt')||'Sampul Dapur Vibe Coder';return out;}
+   const source=resolve(from,n.getAttribute('src')||'');if(source?.path==='EPUB/media/cover.jpg'){out.src='assets/web/cover.webp';out.width=560;out.height=792;out.alt=n.getAttribute('alt')||'Sampul Dapur Vibe Coder';return out;}
    return document.createTextNode(n.getAttribute('alt')||'');
   }
   if(tag==='a'){
@@ -72,7 +72,7 @@ function doSearch(){
  for(const {c,i} of matches){const b=el('button',c.title);b.type='button';b.addEventListener('click',()=>show(i,'',true));results.append(b);}
 }
 async function load(){
- const r=await fetch('Dapur_Vibe_Coder.epub');if(!r.ok)throw Error('File buku tidak dapat dimuat.');
+ let r;try{r=await fetch('assets/web/reader-content.zip');if(!r.ok)throw Error('Arsip ringan tidak tersedia.');}catch{r=await fetch('Dapur_Vibe_Coder.epub');}if(!r.ok)throw Error('File buku tidak dapat dimuat.');
  const archive=zip(await r.arrayBuffer()),container=xml(await archive.read('META-INF/container.xml')),packagePath=[...container.getElementsByTagNameNS('*','rootfile')][0]?.getAttribute('full-path');
  if(!packagePath)throw Error('Paket EPUB tidak ditemukan.');
  const packageDoc=xml(await archive.read(packagePath)),manifest=new Map([...packageDoc.getElementsByTagNameNS('*','item')].map(n=>[n.getAttribute('id'),n.getAttribute('href')]));

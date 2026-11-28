@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://cuan74468-ux.github.io/buku-pintar-vibe-coder/sitemap.xml

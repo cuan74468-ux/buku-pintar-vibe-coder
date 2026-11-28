@@ -56,7 +56,7 @@
     const cover=anchor(mainUrl,'','library-cover',directDownload);
     cover.setAttribute('aria-label',(directDownload?'Unduh ':'Lihat ')+book.title);
     const img=node('img');
-    img.src=book.cover;img.loading='lazy';img.alt='Sampul '+book.title;
+    img.src=book.cover==='Dapur_Vibe_Coder_Mockup.jpg'?'assets/web/mockup.webp':book.cover;img.alt='Sampul '+book.title;if(book.cover==='Dapur_Vibe_Coder_Mockup.jpg'){img.width=480;img.height=720;}else img.loading='lazy';
     cover.append(img,node('span','book-cover-tag','Gratis'));
     const body=node('div','library-book-content');
     body.append(node('span','book-category',book.category));
