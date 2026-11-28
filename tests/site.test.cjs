@@ -167,3 +167,6 @@ test('web derivatives are present, hash verified and originals preserved',()=>{c
 
 
 test('public library does not link to unreleased membership',()=>{for(const p of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html'])assert(!read(p).includes('ngulik-digital-member/'));});
+
+
+test('Studio brand replaces the generic book icon on all pages',()=>{for(const p of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html']){const html=read(p);assert.match(html,/<span class="logo-icon"><img src="assets\/web\/linggau-ai-logo\.webp"/);assert.match(html,/<link rel="icon" href="assets\/web\/linggau-ai-logo\.webp"/);assert(!html.includes('<span class="logo-icon"><svg'));}});
