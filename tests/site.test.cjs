@@ -129,14 +129,14 @@ test('all visible ebook downloads route to verified release; offline reader file
 
 test('GA4 consent pilot: no load before consent, canonical params, path gate, chapter dedupe',()=>{
  const src=read('js/analytics.js');
- const boot=(pathname='/buku-pintar-vibe-coder/baca.html',choice=null)=>{
+ const boot=(pathname='/buku-pintar-vibe-coder/baca.html',choice=null,referrer='https://example.com/',search='?private=secret',hash='#bagian-1')=>{
   const handlers={},scripts=[],nodes={};for(const id of ['analyticsPreferences','analyticsStatus','analyticsAccept','analyticsReject'])nodes[id]={addEventListener:(n,f)=>handlers[id]=f};
-  const win={},doc={referrer:'https://example.com/private?secret=abc',cookie:'',getElementById:id=>nodes[id],createElement:()=>({}),head:{append:s=>scripts.push(s)},addEventListener:(n,f)=>handlers[n]=f};
-  let stored=choice;const context={window:win,document:doc,location:{protocol:'https:',hostname:'cuan74468-ux.github.io',origin:'https://cuan74468-ux.github.io',pathname,reload(){}},localStorage:{getItem:()=>stored,setItem:(k,v)=>{stored=v}},URL,Date};
-  vm.runInNewContext(src,context);return {win,handlers,scripts,nodes};
+  const win={},doc={referrer,cookie:'',getElementById:id=>nodes[id],createElement:()=>({}),head:{append:s=>scripts.push(s)},addEventListener:(n,f)=>handlers[n]=f};
+  let stored=choice;const location={protocol:'https:',hostname:'cuan74468-ux.github.io',origin:'https://cuan74468-ux.github.io',pathname,search,hash,reload(){}};const history={state:null,replaceState:(s,t,v)=>{const u=new URL(v,location.origin);location.search=u.search;location.hash=u.hash}};const context={window:win,document:doc,location,history,localStorage:{getItem:()=>stored,setItem:(k,v)=>{stored=v}},URL,Date};
+  vm.runInNewContext(src,context);return {win,handlers,scripts,nodes,location};
  };
- const t=boot();assert.equal(t.scripts.length,0);t.win.DVCAnalytics.chapter(1);t.handlers.analyticsAccept();assert.equal(t.scripts.length,1);
+ const t=boot();assert.equal(t.scripts.length,0);t.win.DVCAnalytics.chapter(1);t.handlers.analyticsAccept();assert.equal(t.scripts.length,1);assert.equal(t.location.search,'');assert.equal(t.location.hash,'#bagian-1');
  t.win.DVCAnalytics.chapter(1);t.win.DVCAnalytics.chapter(2);const events=t.win.dataLayer.filter(a=>a[0]==='event');assert.deepEqual(Array.from(events,a=>a[1]),['page_view','reader_open','chapter_view','chapter_view']);assert.equal(events[0][2].page_referrer,'https://example.com/');assert(!JSON.stringify(events).includes('secret'));
- t.handlers.analyticsReject();t.win.DVCAnalytics.chapter(3);assert.equal(t.win.dataLayer.filter(a=>a[0]==='event').length,4);assert.equal(boot('/other/','yes').scripts.length,0);
+ t.handlers.analyticsReject();t.win.DVCAnalytics.chapter(3);assert.equal(t.win.dataLayer.filter(a=>a[0]==='event').length,4);assert.equal(boot('/other/','yes').scripts.length,0);assert.equal(boot('/buku-pintar-vibe-coder/baca.html','yes','https://example.com/private?secret=abc').scripts.length,0);assert.equal(boot('/buku-pintar-vibe-coder/baca.html','yes','https://example.com/private').scripts.length,0);
  for(const p of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html']){const s=read(p);assert.equal((s.match(/js\/analytics\.js/g)||[]).length,1);assert(s.includes('analyticsReject'));}
 });

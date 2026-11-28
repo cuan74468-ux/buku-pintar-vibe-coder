@@ -1,4 +1,4 @@
-name: GA4 production runtime audit
+name: GA4 privacy candidate transport audit
 on:
   pull_request:
     branches: [main]

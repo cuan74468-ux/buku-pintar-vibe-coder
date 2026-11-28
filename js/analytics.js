@@ -12,11 +12,27 @@ const safeRef=()=>{try{const u=new URL(document.referrer);return /^https?:$/.tes
 const send=(name,params={})=>{if(allowed&&loaded)window.gtag('event',name,{project_id:'dapur-vibe-coder',environment:'production',page_type:page,page_location:canonical,page_referrer:safeRef(),...params})};
 function chapter(n){if(page!=='reader'||!Number.isInteger(n)||n<1||n>150)return;section=n;if(allowed&&loaded&&lastSection!==n){lastSection=n;send('chapter_view',{section_index:n})}}
 window.DVCAnalytics=Object.freeze({chapter});
+// The vendor library can read the real document URL independently of event parameters.
+function safeContext(){
+ try{
+  if(document.referrer){
+   const ref=new URL(document.referrer);
+   if(!/^https?:$/.test(ref.protocol)||ref.search||ref.hash||ref.username||ref.password)return false;
+   if(ref.pathname!=='/'&&!(ref.origin===location.origin&&pages.has(ref.pathname)))return false;
+  }
+  // Preserve only reader section anchors and fixed public navigation anchors.
+  const hash=location.hash||'';
+  const keep=(page==='reader'&&/^#bagian-(?:[1-9]|[1-9][0-9]|1[0-4][0-9]|150)$/.test(hash))||['#main','#atas','#chapter-1'].includes(hash)?hash:'';
+  if(location.search||hash!==keep)history.replaceState(history.state,'',location.pathname+keep);
+  return !location.search&&(location.hash||'')===keep;
+ }catch{return false}
+}
 function start(){
- if(loaded||!save('yes'))return;allowed=true;window['ga-disable-'+ID]=false;
+ if(loaded||!save('yes')||!safeContext())return;allowed=true;window['ga-disable-'+ID]=false;
  window.dataLayer=window.dataLayer||[];window.gtag=function(){window.dataLayer.push(arguments)};
  window.gtag('consent','default',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
  window.gtag('js',new Date());
+ window.gtag('set',{page_location:canonical,page_referrer:safeRef()});
  window.gtag('config',ID,{send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false,cookie_prefix:'dvc',cookie_path:BASE,page_location:canonical,page_referrer:safeRef()});
  loaded=true;
  send('page_view');if(page==='reader'){send('reader_open');if(section)chapter(section)}
@@ -25,7 +41,7 @@ function start(){
 function stop(){allowed=false;window['ga-disable-'+ID]=true;if(loaded)window.gtag('consent','update',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});for(const part of document.cookie.split(';')){const name=part.split('=')[0].trim();if(/^dvc_ga(?:_|$)/.test(name))document.cookie=name+'=; Max-Age=0; Path='+BASE+'; Secure; SameSite=Lax';}}
 window['ga-disable-'+ID]=true;
 const panel=document.getElementById('analyticsPreferences'), status=document.getElementById('analyticsStatus');
-function update(){status.textContent=allowed?'Analitik diizinkan.':'Analitik tidak diizinkan.'}
+function update(){status.textContent=allowed?'Analitik diizinkan.':read()==='yes'?'Analitik tidak aktif pada halaman ini karena pengamanan privasi.':'Analitik tidak diizinkan.'}
 document.getElementById('analyticsAccept').addEventListener('click',()=>{save('yes');start();update()});
 document.getElementById('analyticsReject').addEventListener('click',()=>{const persisted=save('no');stop();update();if(loaded&&persisted)location.reload()});
 if(read()==='yes')start();update();
