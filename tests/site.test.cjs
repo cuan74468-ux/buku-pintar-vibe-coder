@@ -140,3 +140,27 @@ test('GA4 consent pilot: no load before consent, canonical params, path gate, ch
  t.handlers.analyticsReject();t.win.DVCAnalytics.chapter(3);assert.equal(t.win.dataLayer.filter(a=>a[0]==='event').length,4);assert.equal(boot('/other/','yes').scripts.length,0);assert.equal(boot('/buku-pintar-vibe-coder/baca.html','yes','https://example.com/private?secret=abc').scripts.length,0);assert.equal(boot('/buku-pintar-vibe-coder/baca.html','yes','https://example.com/private').scripts.length,0);
  for(const p of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html']){const s=read(p);assert.equal((s.match(/js\/analytics\.js/g)||[]).length,1);assert(s.includes('analyticsReject'));}
 });
+
+test('SEO canonical metadata, public FAQ, Book schema and sitemap are consistent',()=>{
+ const base='https://cuan74468-ux.github.io/buku-pintar-vibe-coder/';
+ const pages=['index.html','buku-pintar-vibe-coder-edisi-1.html','baca.html'];
+ const titles=new Set();
+ for(const p of pages){const s=read(p),url=p==='index.html'?base:base+p;
+  const title=s.match(/<title>([^<]+)<\/title>/)[1];assert(title.length<=60);assert(!titles.has(title));titles.add(title);
+  assert.equal((s.match(/<h1(?:\s|>)/g)||[]).length,1);
+  assert.equal((s.match(/rel="canonical"/g)||[]).length,1);assert(s.includes('rel="canonical" href="'+url+'"'));assert(s.includes('property="og:url" content="'+url+'"'));
+  for(const key of ['og:locale','og:site_name','og:image:alt','twitter:card','twitter:title','twitter:description','twitter:image'])assert(s.includes(key),key);
+  assert(!/name="robots" content="[^"]*noindex/.test(s));assert(read('sitemap.xml').includes('<loc>'+url+'</loc>'));
+ }
+ const schemas=JSON.parse(detail.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1])['@graph'];
+ const book=schemas.find(x=>x['@type']==='Book'),faq=schemas.find(x=>x['@type']==='FAQPage');
+ assert.equal(book.name,catalog.books[0].title);assert.equal(book.datePublished,catalog.books[0].publishedAt);assert.equal(book.isAccessibleForFree,true);
+ assert.equal(faq.mainEntity.length,5);for(const q of faq.mainEntity){assert(detail.includes('<summary>'+q.name+'</summary>'));assert(detail.includes(q.acceptedAnswer.text));}
+ assert(read('robots.txt').includes('Sitemap: '+base+'sitemap.xml'));
+ assert.equal([...read('sitemap.xml').matchAll(/<loc>/g)].length,3);
+ assert(detail.includes('https://cuan74468-ux.github.io/bakso-len-1-menu/'));
+});
+
+test('local relevance is visible and truthful; national book access preserved',()=>{assert(home.includes('eBook AI Gratis dari Lubuklinggau'));assert(home.includes('Linggau AI Studio di Lubuklinggau'));assert(detail.includes('Lubuklinggau, Sumatera Selatan'));assert(detail.includes('maupun seluruh Indonesia'));assert(detail.includes('Gratis Rp0'));const schema=JSON.parse(detail.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1]);assert(!schema['@graph'].some(x=>x['@type']==='LocalBusiness'||x['@type']==='Restaurant'));});
+
+test('web derivatives are present, hash verified and originals preserved',()=>{const crypto=require('node:crypto');const manifest=JSON.parse(read('assets/web/manifest.json'));for(const [name,info] of Object.entries(manifest)){const bytes=fs.readFileSync(path.join(root,'assets/web',name));assert.equal(bytes.length,info.bytes);assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),info.sha256);}assert(home.includes('assets/web/mockup.webp'));assert(detail.includes('assets/web/mockup.webp'));assert(read('js/reader.js').includes('assets/web/reader-content.zip'));assert(read('js/reader.js').includes('Dapur_Vibe_Coder.epub'));});

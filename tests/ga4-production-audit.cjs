@@ -9,11 +9,40 @@ const google=u=>{const h=new URL(u).hostname;return h==='www.googletagmanager.co
 const collect=u=>google(u)&&new URL(u).pathname.endsWith('/collect');
 async function waitFor(fn,ms=25000){for(let i=0;i<ms/250;i++){if(fn())return;await new Promise(r=>setTimeout(r,250))}throw Error('Timed out waiting for GA collect response')}
 (async()=>{
- for(const file of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html','js/analytics.js','js/reader.js']){
+ for(const file of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html','js/analytics.js','js/reader.js','js/library.js','css/site.css','sitemap.xml','robots.txt','assets/web/mockup.webp','assets/web/cover.webp','assets/web/reader-content.zip','assets/web/manifest.json']){
   let matched=false;for(let i=0;i<18;i++){const res=await fetch(root+file+'?audit='+probe+'-'+i,{cache:'no-store'});if(res.ok&&hash(Buffer.from(await res.arrayBuffer()))===hash(fs.readFileSync(file))){matched=true;break}await new Promise(r=>setTimeout(r,5000))}assert(matched,file+' differs from approved source or deployment not yet propagated');
   console.log('PASS production bytes '+file);
  }
  const browser=await chromium.launch();
+ const site=await browser.newContext({viewport:{width:360,height:900}});
+ try{
+ const q=await site.newPage(),errs=[];q.on('pageerror',e=>errs.push(e.message));
+ await q.goto(root,{waitUntil:'networkidle'});
+ assert.match(await q.title(),/Lubuklinggau/);
+ assert.equal(await q.locator('link[rel=canonical]').getAttribute('href'),root);
+ await q.waitForFunction(()=>document.querySelector('#bookSearch')&&!document.querySelector('#bookSearch').closest('[hidden]'));
+ assert.equal(await q.locator('[data-book-id]').count(),1);
+ await q.goto(root+'buku-pintar-vibe-coder-edisi-1.html',{waitUntil:'networkidle'});
+ const schema=JSON.parse(await q.locator('script[type="application/ld+json"]').textContent());
+ assert(schema['@graph'].some(x=>x['@type']==='Book'&&x.isAccessibleForFree===true));
+ assert.equal(await q.locator('#faq details').count(),5);
+ for(const ext of ['pdf','epub'])assert(await q.locator('a[download][href="https://github.com/cuan74468-ux/buku-pintar-vibe-coder/releases/download/dapur-vibe-coder/Dapur_Vibe_Coder.'+ext+'"]').count());
+ for(const w of [360,1440]){
+ await q.setViewportSize({width:w,height:900});
+ await q.goto(root+'baca.html',{waitUntil:'networkidle'});
+ await q.waitForFunction(()=>document.querySelector('#chapterSelect').options.length===36&&!document.querySelector('#chapterSelect').disabled,undefined,{timeout:20000});
+ for(let i=0;i<36;i++){
+ await q.locator('#chapterSelect').selectOption(String(i));
+ assert.match(await q.locator('#readerPosition').innerText(),new RegExp('Bagian '+(i+1)+' dari 36'));
+ assert(await q.locator('#readerContent').innerText()||await q.locator('#readerContent img').count());
+ assert(await q.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+ }
+ console.log('PASS production 36 reader sections viewport '+w);
+ }
+ assert.deepEqual(errs,[]);
+ console.log('PASS production local SEO, schema, FAQ, release links, reader (no downloads generated)');
+ }finally{await site.close();}
+
  try{
   const p=await browser.newPage({viewport:{width:360,height:900}});
   const requests=[],responses=[],errors=[];let leaked=0;
