@@ -18,15 +18,5 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install Pillow==11.3.0
       - run: python tools/build-web-assets.py
-      - name: Export public derivatives for reviewed static commit
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import base64, hashlib
-          for p in sorted(Path('assets/web').iterdir()):
-              b=p.read_bytes()
-              s=base64.b64encode(b).decode()
-              print('DVC_ASSET_BEGIN '+p.name+' '+str(len(b))+' '+hashlib.sha256(b).hexdigest())
-              for i in range(0,len(s),4000): print('DVC_ASSET_CHUNK '+p.name+' '+s[i:i+4000])
-              print('DVC_ASSET_END '+p.name)
-          PY
+      - name: Verify checked-in web derivatives
+        run: git diff --exit-code -- assets/web/cover.webp assets/web/mockup.webp assets/web/reader-content.zip

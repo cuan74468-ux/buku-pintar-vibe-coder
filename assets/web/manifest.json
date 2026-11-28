@@ -1,0 +1,14 @@
+{
+  "cover.webp": {
+    "bytes": 86104,
+    "sha256": "dc8572cc6aab41ef68d3fe5b24a63c35421d79a602617b74b5f5f4ea80aaad39"
+  },
+  "mockup.webp": {
+    "bytes": 58842,
+    "sha256": "cb6951d0de634f719b853d8cd2f8afe28b7d3a11f94590052dcd95b144c4a220"
+  },
+  "reader-content.zip": {
+    "bytes": 60067,
+    "sha256": "13e2cc1518290a946fcc257c7287250606a07dce9a5cb600dc8f67ce8feef1b6"
+  }
+}
