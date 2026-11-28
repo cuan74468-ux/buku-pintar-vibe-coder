@@ -1,0 +1,43 @@
+name: Dapur Vibe Coder Lighthouse mobile
+on:
+  pull_request:
+    branches: [main]
+    paths: ['*.html','css/**','js/**','sitemap.xml','robots.txt','.github/workflows/lighthouse-mobile.yml','tests/lighthouse-report.cjs']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mobile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Lighthouse
+        run: npm install --no-save --no-package-lock lighthouse@12.6.0
+      - name: Audit all three candidate pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CHROME_PATH="$(command -v google-chrome)"
+          mkdir -p "$RUNNER_TEMP/dvc-site" lighthouse-reports
+          ln -s "$GITHUB_WORKSPACE" "$RUNNER_TEMP/dvc-site/buku-pintar-vibe-coder"
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/dvc-site" > /tmp/dvc-lighthouse-server.log 2>&1 &
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:8765/buku-pintar-vibe-coder/ > /dev/null; then break; fi
+            sleep 1
+          done
+          for page in index.html buku-pintar-vibe-coder-edisi-1.html baca.html; do
+            ./node_modules/.bin/lighthouse "http://127.0.0.1:8765/buku-pintar-vibe-coder/$page" --chrome-flags="--headless --no-sandbox" --output=json --output-path="lighthouse-reports/${page%.html}.json" --quiet
+          done
+          node tests/lighthouse-report.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dvc-mobile-lighthouse
+          path: lighthouse-reports/*.json
+          if-no-files-found: warn
