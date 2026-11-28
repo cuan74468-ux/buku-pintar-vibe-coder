@@ -160,3 +160,5 @@ test('SEO canonical metadata, public FAQ, Book schema and sitemap are consistent
  assert.equal([...read('sitemap.xml').matchAll(/<loc>/g)].length,3);
  assert(detail.includes('https://cuan74468-ux.github.io/bakso-len-1-menu/'));
 });
+
+test('local relevance is visible and truthful; national book access preserved',()=>{assert(home.includes('eBook AI Gratis dari Lubuklinggau'));assert(home.includes('Linggau AI Studio di Lubuklinggau'));assert(detail.includes('Lubuklinggau, Sumatera Selatan'));assert(detail.includes('maupun seluruh Indonesia'));assert(detail.includes('Gratis Rp0'));const schema=JSON.parse(detail.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1]);assert(!schema['@graph'].some(x=>x['@type']==='LocalBusiness'||x['@type']==='Restaurant'));});
