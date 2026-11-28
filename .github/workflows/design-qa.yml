@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'baca.html'
+      - 'sitemap.xml'
+      - 'robots.txt'
       - 'buku-pintar-vibe-coder-edisi-1.html'
       - 'data/**'
       - 'feed.xml'
