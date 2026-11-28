@@ -1,0 +1,22 @@
+name: GA4 production runtime audit
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/ga4-production-audit.yml','tests/ga4-production-audit.cjs']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --no-package-lock playwright@1.51.1
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/ga4-production-audit.cjs
