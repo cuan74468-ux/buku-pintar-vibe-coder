@@ -65,10 +65,11 @@
     body.append(h3,node('p','',book.subtitle));
     body.append(node('div','book-byline','Oleh '+book.author+' · '+niceDate(book.publishedAt)));
     const links=node('div','book-links');
+    
+    if(book.downloads.pdf)links.append(anchor(book.downloads.pdf,'PDF ↓','button secondary',true));
+    if(book.downloads.epub)links.append(anchor(book.downloads.epub,'EPUB ↓','button secondary',true));
+    if(book.readerUrl)links.prepend(anchor(book.readerUrl,'Baca online','button primary'));
     links.append(anchor(mainUrl,book.detailUrl?'Detail buku':book.downloads.pdf?'Baca PDF':'Unduh buku ↓',book.detailUrl?'text-link':'book-details',directDownload));
-    if(book.downloads.pdf)links.append(anchor(book.downloads.pdf,'PDF ↓','',true));
-    if(book.downloads.epub)links.append(anchor(book.downloads.epub,'EPUB ↓','',true));
-    if(book.readerUrl)links.prepend(anchor(book.readerUrl,'Baca online','primary'));
     body.append(links);
     article.append(cover,body);
     return article;
