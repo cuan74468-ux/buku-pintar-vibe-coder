@@ -157,7 +157,7 @@ test('SEO canonical metadata, public FAQ, Book schema and sitemap are consistent
  assert.equal(book.name,catalog.books[0].title);assert.equal(book.datePublished,catalog.books[0].publishedAt);assert.equal(book.isAccessibleForFree,true);
  assert.equal(faq.mainEntity.length,5);for(const q of faq.mainEntity){assert(detail.includes('<summary>'+q.name+'</summary>'));assert(detail.includes(q.acceptedAnswer.text));}
  assert(read('robots.txt').includes('Sitemap: '+base+'sitemap.xml'));
- assert.equal([...read('sitemap.xml').matchAll(/<loc>/g)].length,3);
+ assert.equal([...read('sitemap.xml').matchAll(/<loc>/g)].length,7);
  assert(detail.includes('https://cuan74468-ux.github.io/bakso-len-1-menu/'));
 });
 
@@ -172,3 +172,5 @@ test('public library does not link to unreleased membership',()=>{for(const p of
 test('Studio brand replaces the generic book icon on all pages',()=>{for(const p of ['index.html','baca.html','buku-pintar-vibe-coder-edisi-1.html']){const html=read(p);assert.match(html,/<span class="logo-icon"><img src="assets\/web\/linggau-ai-logo\.webp"/);assert.match(html,/<link rel="icon" href="assets\/web\/linggau-ai-logo\.webp"/);assert(!html.includes('<span class="logo-icon"><svg'));}});
 
 test('three approved titles appear even if catalog fetch fails',()=>{for(const b of catalog.books){assert(home.includes('data-book-id="'+b.id+'"'));assert(home.includes(b.title));}for(const b of catalog.books.slice(1)){assert(!b.edition);for(const f of Object.values(b.downloads))assert(home.includes('href="'+f+'"'));assert(rss.includes(b.title));}});
+
+test('catalog parity and canonical authors for all books',()=>{for(const b of catalog.books){assert.equal(b.author,'Noferi (Ferry)');assert(b.detailUrl&&b.readerUrl);assert(home.includes('href="'+b.detailUrl+'"'));assert(home.includes('href="'+b.readerUrl+'"'));for(const p of [b.detailUrl,b.readerUrl]){const s=read(p);assert(s.includes(b.title));assert(s.includes('css/site.css'));assert(read('sitemap.xml').includes(p));}if(b.id!=='buku-pintar-vibe-coder-edisi-1'){assert(read(b.readerUrl).includes('data-book="'+b.id+'"'));assert(read(b.detailUrl).includes(b.author));assert(read(b.detailUrl).includes('href="'+b.readerUrl+'"'));}}assert(libraryJS.includes('safeFile(book.readerUrl)'));});

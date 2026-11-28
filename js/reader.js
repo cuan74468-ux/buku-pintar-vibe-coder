@@ -3,6 +3,12 @@
 'use strict';
 const $=id=>document.getElementById(id), content=$('readerContent'), toc=$('readerToc'), select=$('chapterSelect'), search=$('readerSearch'), results=$('searchResults');
 const decoder=new TextDecoder('utf-8'), parser=new DOMParser();
+const sources=Object.freeze({
+ 'modal-nekat':{title:'Modal Nekat?',epub:'modal-nekat.epub',pdf:'modal-nekat.pdf',cover:'modal-nekat-cover.jpg',coverPath:'EPUB/media/modal-nekat-cover.jpg'},
+ tekor:{title:'Tekor',epub:'tekor.epub',pdf:'tekor.pdf',cover:'tekor-cover.jpg',coverPath:'EPUB/media/tekor-cover.jpg'}
+});
+const key=document.body.dataset.book||'';
+const source=Object.prototype.hasOwnProperty.call(sources,key)?sources[key]:{title:'Dapur Vibe Coder',epub:'Dapur_Vibe_Coder.epub',pdf:'Dapur_Vibe_Coder.pdf',cover:'assets/web/cover.webp',coverPath:'EPUB/media/cover.jpg',optimized:'assets/web/reader-content.zip'};
 const MAX=8*1024*1024, allowed=new Set('h1 h2 h3 h4 h5 h6 p div section article main aside span strong b em i u s del ins small sub sup br hr ul ol li dl dt dd blockquote pre code table caption thead tbody tfoot tr th td figure figcaption a img'.split(' '));
 const xml=s=>{const d=parser.parseFromString(s,'application/xml');if(d.querySelector('parsererror'))throw Error('Dokumen EPUB tidak valid.');return d;};
 const resolve=(from,href)=>{try{const u=new URL(href,'https://epub.invalid/'+from);if(u.origin!=='https://epub.invalid')return null;const path=decodeURIComponent(u.pathname.slice(1));if(!path||path.includes('..')||path.includes('\\'))return null;return {path,hash:decodeURIComponent(u.hash.slice(1))};}catch{return null;}};
@@ -32,8 +38,8 @@ function clean(n,from){
  if(n.nodeType!==1)return document.createDocumentFragment();
  const tag=n.localName.toLowerCase();
  if(tag==='svg'){
-  const embedded=[...n.getElementsByTagNameNS('*','image')].find(img=>resolve(from,img.getAttribute('href')||img.getAttributeNS('http://www.w3.org/1999/xlink','href')||'')?.path==='EPUB/media/cover.jpg');
-  if(embedded){const cover=el('img');cover.src='assets/web/cover.webp';cover.width=560;cover.height=792;cover.alt='Sampul Dapur Vibe Coder';return cover;}
+  const embedded=[...n.getElementsByTagNameNS('*','image')].find(img=>resolve(from,img.getAttribute('href')||img.getAttributeNS('http://www.w3.org/1999/xlink','href')||'')?.path===source.coverPath);
+  if(embedded){const cover=el('img');cover.src=source.cover;cover.alt='Sampul '+source.title;return cover;}
   return document.createDocumentFragment();
  }
  if(['script','style','iframe','object','embed','form','input','button','svg','math','audio','video','link'].includes(tag))return document.createDocumentFragment();
@@ -41,7 +47,7 @@ function clean(n,from){
  if(out.nodeType===1){
   const id=n.getAttribute('id');if(id)out.id='book-'+id;
   if(tag==='img'){
-   const source=resolve(from,n.getAttribute('src')||'');if(source?.path==='EPUB/media/cover.jpg'){out.src='assets/web/cover.webp';out.width=560;out.height=792;out.alt=n.getAttribute('alt')||'Sampul Dapur Vibe Coder';return out;}
+   const imagePath=resolve(from,n.getAttribute('src')||'');if(imagePath?.path===source.coverPath){out.src=source.cover;out.alt=n.getAttribute('alt')||'Sampul '+source.title;return out;}
    return document.createTextNode(n.getAttribute('alt')||'');
   }
   if(tag==='a'){
@@ -62,7 +68,7 @@ function show(index,anchor='',move=false){
  $('prevChapter').disabled=index===0;$('nextChapter').disabled=index===chapters.length-1;
  for(const btn of toc.querySelectorAll('button'))btn.setAttribute('aria-current',String(btn.dataset.index===String(index)));
  history.replaceState(null,'','#bagian-'+(index+1));
- window.DVCAnalytics?.chapter(index+1);
+ if(!key)window.DVCAnalytics?.chapter(index+1);
  if(move){const target=anchor?document.getElementById('book-'+anchor):content;(target||content).scrollIntoView({block:'start'});}
 }
 function doSearch(){
@@ -72,7 +78,7 @@ function doSearch(){
  for(const {c,i} of matches){const b=el('button',c.title);b.type='button';b.addEventListener('click',()=>show(i,'',true));results.append(b);}
 }
 async function load(){
- let r;try{r=await fetch('assets/web/reader-content.zip');if(!r.ok)throw Error('Arsip ringan tidak tersedia.');}catch{r=await fetch('Dapur_Vibe_Coder.epub');}if(!r.ok)throw Error('File buku tidak dapat dimuat.');
+ let r;if(source.optimized){try{r=await fetch(source.optimized);if(!r.ok)throw Error('Arsip ringan tidak tersedia.');}catch{r=await fetch(source.epub);}}else{r=await fetch(source.epub);}if(!r.ok)throw Error('File buku tidak dapat dimuat.');
  const archive=zip(await r.arrayBuffer()),container=xml(await archive.read('META-INF/container.xml')),packagePath=[...container.getElementsByTagNameNS('*','rootfile')][0]?.getAttribute('full-path');
  if(!packagePath)throw Error('Paket EPUB tidak ditemukan.');
  const packageDoc=xml(await archive.read(packagePath)),manifest=new Map([...packageDoc.getElementsByTagNameNS('*','item')].map(n=>[n.getAttribute('id'),n.getAttribute('href')]));
@@ -90,5 +96,5 @@ select.addEventListener('change',()=>show(Number(select.value),'',true));search.
 $('prevChapter').addEventListener('click',()=>show(current-1,'',true));$('nextChapter').addEventListener('click',()=>show(current+1,'',true));
 content.addEventListener('click',e=>{const a=e.target.closest('a[data-chapter]');if(!a)return;e.preventDefault();show(Number(a.dataset.chapter),a.dataset.anchor,true);});
 for(const [id,delta] of [['fontMinus',-1],['fontPlus',1]])$(id).addEventListener('click',()=>{readingSize=Math.max(15,Math.min(26,readingSize+delta));document.documentElement.style.setProperty('--read-size',readingSize+'px');});
-load().catch(()=>{content.setAttribute('aria-busy','false');$('readerPosition').textContent='Pembaca tidak tersedia';content.replaceChildren(el('p','Pembaca online tidak dapat memuat buku pada perangkat ini. Gunakan file asli di bawah.'));const p=el('a','Buka PDF');p.href='Dapur_Vibe_Coder.pdf';const e=el('a','Unduh EPUB');e.href='Dapur_Vibe_Coder.epub';e.download='';content.append(p,el('p','atau'),e);});
+load().catch(()=>{content.setAttribute('aria-busy','false');$('readerPosition').textContent='Pembaca tidak tersedia';content.replaceChildren(el('p','Pembaca online tidak dapat memuat buku pada perangkat ini. Gunakan file asli di bawah.'));const p=el('a','Buka PDF');p.href=source.pdf;const e=el('a','Unduh EPUB');e.href=source.epub;e.download='';content.append(p,el('p','atau'),e);});
 })();

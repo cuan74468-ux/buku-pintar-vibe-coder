@@ -68,7 +68,7 @@
     links.append(anchor(mainUrl,book.detailUrl?'Detail buku':book.downloads.pdf?'Baca PDF':'Unduh buku ↓',book.detailUrl?'text-link':'book-details',directDownload));
     if(book.downloads.pdf)links.append(anchor(book.downloads.pdf,'PDF ↓','',true));
     if(book.downloads.epub)links.append(anchor(book.downloads.epub,'EPUB ↓','',true));
-    if(book.detailUrl){const read=anchor('baca.html','Baca online','primary');if(book.id==='buku-pintar-vibe-coder-edisi-1')links.prepend(read);}
+    if(book.readerUrl)links.prepend(anchor(book.readerUrl,'Baca online','primary'));
     body.append(links);
     article.append(cover,body);
     return article;
@@ -119,14 +119,15 @@
         if(typeof book[key]!=='string'||!book[key].trim())throw Error('Data '+key+' tidak lengkap.');
       }
       if(!iso.test(book.publishedAt)||!Number.isFinite(new Date(book.publishedAt+'T00:00:00Z').getTime()))throw Error('Tanggal terbit tidak valid.');
-      const cover=safeFile(book.cover),detailUrl=book.detailUrl?safeFile(book.detailUrl):'';
+      const cover=safeFile(book.cover),detailUrl=book.detailUrl?safeFile(book.detailUrl):'',readerUrl=book.readerUrl?safeFile(book.readerUrl):'';
+      if(book.readerUrl&&(!readerUrl||!readerUrl.endsWith('.html')))throw Error('Path pembaca tidak valid.');
       if(!cover||!/\.(?:png|jpg|jpeg|webp|svg)$/i.test(cover)||(book.detailUrl&&(!detailUrl||!detailUrl.endsWith('.html'))))throw Error('Path sampul atau halaman buku tidak valid.');
       if(!book.downloads||typeof book.downloads!=='object')throw Error('File unduhan belum ditetapkan.');
       const pdf=book.downloads.pdf?safeFile(book.downloads.pdf):'';
       const epub=book.downloads.epub?safeFile(book.downloads.epub):'';
       if((book.downloads.pdf&&!pdf)||(book.downloads.epub&&!epub))throw Error('Path unduhan tidak aman.');
       if(book.status==='published'&&!pdf&&!epub)throw Error('Buku terbit belum memiliki berkas unduhan.');
-      return {...book,cover,detailUrl,downloads:{pdf,epub}};
+      return {...book,cover,detailUrl,readerUrl,downloads:{pdf,epub}};
     });
     const lastUpdated=String(data.lastUpdated||'');
     if(!iso.test(lastUpdated))throw Error('Tanggal pembaruan katalog tidak valid.');

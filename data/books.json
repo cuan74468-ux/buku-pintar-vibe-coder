@@ -7,7 +7,7 @@
       "title": "Dapur Vibe Coder",
       "subtitle": "Meracik Ide Menjadi Produk Digital Bersama AI",
       "summary": "Cerita perjalanan seorang pelaku usaha kuliner membangun produk digital bersama AI, disertai latihan, pemeriksaan keamanan, dan studi kasus nyata.",
-      "author": "Ferry",
+      "author": "Noferi (Ferry)",
       "category": "Vibe Coding",
       "edition": "Edisi 1",
       "publishedAt": "2026-11-04",
@@ -17,14 +17,15 @@
       "downloads": {
         "pdf": "Dapur_Vibe_Coder.pdf",
         "epub": "Dapur_Vibe_Coder.epub"
-      }
+      },
+      "readerUrl": "baca.html"
     },
     {
       "id": "modal-nekat",
       "title": "Modal Nekat?",
       "subtitle": "Bekal sebelum memulai usaha kuliner.",
       "summary": "Riset pembeli, modal, produk, harga, lokasi dan persiapan membuka warung.",
-      "author": "Noferi",
+      "author": "Noferi (Ferry)",
       "category": "Bisnis Kuliner",
       "publishedAt": "2026-11-28",
       "status": "published",
@@ -32,14 +33,16 @@
       "downloads": {
         "pdf": "modal-nekat.pdf",
         "epub": "modal-nekat.epub"
-      }
+      },
+      "readerUrl": "modal-nekat-baca.html",
+      "detailUrl": "modal-nekat.html"
     },
     {
       "id": "tekor",
       "title": "Tekor",
       "subtitle": "10 kesalahan dalam mengelola usaha kuliner.",
       "summary": "Kas, stok, karyawan, kualitas, promosi, pelanggan dan legalitas usaha.",
-      "author": "Noferi",
+      "author": "Noferi (Ferry)",
       "category": "Bisnis Kuliner",
       "publishedAt": "2026-11-28",
       "status": "published",
@@ -47,7 +50,9 @@
       "downloads": {
         "pdf": "tekor.pdf",
         "epub": "tekor.epub"
-      }
+      },
+      "readerUrl": "tekor-baca.html",
+      "detailUrl": "tekor.html"
     }
   ]
 }
